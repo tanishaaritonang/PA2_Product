@@ -4,6 +4,16 @@ const userInput = document.getElementById('user-input');
 const chatbotConversation = document.getElementById('chatbot-conversation-container');
 const recentChatsContainer = document.getElementById('recent-chats-container');
 const clearChatsBtn = document.getElementById('clear-chats-btn');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+
+function setupEventListeners() {
+    
+    // Sidebar toggle
+    sidebarToggle.addEventListener('click', toggleSidebar);
+
+
+}
+
 
 // Generate a session ID when the page loads
 let sessionId = Date.now().toString();
@@ -81,7 +91,7 @@ clearChatsBtn.addEventListener('click', () => {
     chatbotConversation.innerHTML = `
         <div class="default-text">
             <h1>Anaques</h1>
-            <img src="logo.png" alt="Anaques Logo" style="width: 200px; height: auto; display: block; margin: 10px auto;">
+            <img src="./img/logo.png" alt="Anaques Logo" style="width: 200px; height: auto; display: block; margin: 10px auto;">
             <h2>Hello! I Am Ready To Help You Explore and Wonder</h2>
             <p>Ask me anything what’s on your mind.</p>
             <p> Am here to assist you!</p>
