@@ -38,7 +38,7 @@ app.post("/chat", async (req, res) => {
         // Pass both question and sessionId to progressConversation
         const response = await progressConversation(question, sessionId);
         console.log('Generated response:', response);
-        await client.rpc('upsert_prompt', { prompt_text: question });
+      
         
         res.json(response);
     } catch (error) {

@@ -80,8 +80,15 @@ export async function progressConversation(question, sessionId) {
         convHistory.push(question);
         convHistory.push(response);
 
-        
+        try {
+            await client.rpc('upsert_prompt', { prompt_text: question });
+            // Don't do anything with the return value
+          } catch (error) {
+            console.error('Error tracking prompt:', error);
+            // Continue with the conversation regardless of tracking error
+          }
         return response;
+
     } catch (error) {
         console.error('Error in conversation:', error);
         return "I'm sorry, I encountered an error. Please try again or contact support.";
