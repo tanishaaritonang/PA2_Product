@@ -80,9 +80,9 @@ body {
   display: flex;
   flex-direction: column;
   border-left: 1px solid #e0e0e0;
+  position: relative; /* Add this to enable proper positioning of fixed elements */
+  height: 100%; /* Ensure it takes full height */
 }
-
-
 
 .chatbot-header {
   display: flex;
@@ -91,8 +91,8 @@ body {
   padding: 5px;
   background-color: #f8f9fa;
   border-bottom: 1px solid #e0e0e0;
-  
 }
+
 .chatbot-header h1 {
   font-size: 1.2rem; /* Sebelumnya default lebih besar */
 }
@@ -113,6 +113,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding-bottom: 80px; /* Add padding to prevent content from being hidden behind the fixed input */
 }
 
 .speech {
@@ -137,11 +138,27 @@ body {
   border-bottom-left-radius: 5px;
 }
 
+/* Fixed input box styling */
 .input-box {
   display: flex;
   padding: 15px;
   background-color: #f8f9fa;
   border-top: 1px solid #e0e0e0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1200px; /* Match the max-width of app-container */
+  margin: 0 auto;
+  z-index: 1000;
+}
+
+/* Apply correct width calculation when sidebar is present */
+.sidebar + .chatbot-wrapper .input-box {
+  width: calc(100% - 300px); /* Adjust for sidebar width */
+  left: auto;
+  right: 0;
 }
 
 input {
@@ -199,7 +216,6 @@ input {
   justify-content: center;
   transition: background-color 0.3s ease;
 }
-
 
 #suggested-questions-container {
     display: flex;

@@ -6,50 +6,12 @@ const recentChatsContainer = document.getElementById('recent-chats-container');
 const clearChatsBtn = document.getElementById('clear-chats-btn');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 
-function setupEventListeners() {
-    // Sidebar toggle
-    sidebarToggle.addEventListener('click', toggleSidebar);
-}
+
 
 // Generate a session ID when the page loads
 let sessionId = Date.now().toString();
 
-// Function to save recent chats to localStorage
-function saveRecentChat(question, response) {
-    const recentChats = JSON.parse(localStorage.getItem('recentChats') || '[]');
-    const newChat = {
-        id: Date.now(),
-        question,
-        response,
-        timestamp: new Date().toLocaleString()
-    };
-    recentChats.unshift(newChat);
-    
-    // Keep only last 10 chats
-    const limitedChats = recentChats.slice(0, 10);
-    localStorage.setItem('recentChats', JSON.stringify(limitedChats));
-    
-    renderRecentChats();
-}
 
-// Function to render recent chats in sidebar
-function renderRecentChats() {
-    const recentChats = JSON.parse(localStorage.getItem('recentChats') || '[]');
-    recentChatsContainer.innerHTML = recentChats.map(chat => `
-        <div class="recent-chat-item" data-id="${chat.id}">
-            <p>${chat.question}</p>
-            <small>${chat.timestamp}</small>
-        </div>
-    `).join('');
-
-    // Add click event to restore chat
-    document.querySelectorAll('.recent-chat-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const chatId = item.getAttribute('data-id');
-            restoreChat(chatId);
-        });
-    });
-}
 
 // Function to restore a specific chat
 function restoreChat(chatId) {
@@ -111,10 +73,7 @@ userInput.addEventListener("keypress", (e) => {
 });
 
 // Clear chats button
-clearChatsBtn.addEventListener('click', () => {
-    localStorage.removeItem('recentChats');
-    recentChatsContainer.innerHTML = '';
-});
+
 
 async function handleUserMessage() {
     const question = userInput.value;
@@ -153,8 +112,6 @@ async function handleUserMessage() {
         // Add AI response to UI
         addMessageToUI(responseData, 'ai');
 
-        // Save to recent chats
-        saveRecentChat(question, responseData);
         
         // Refresh popular prompts after successful message
         fetchPopularPrompts();
@@ -189,6 +146,6 @@ function toggleSidebar() {
 
 // Load recent chats and popular prompts on page load
 document.addEventListener('DOMContentLoaded', () => {
-    renderRecentChats();
+ 
     fetchPopularPrompts();
 });
