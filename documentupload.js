@@ -20,14 +20,13 @@ try {
     const output = await splitter.createDocuments([text])
 
 
-    const sbApiKey= process.env.SUPABASE_API_KEY
-    const sbUrl=  process.env.SUPABASE_URL_CHAT_BOT
+    const supabaseKey= process.env.SUPABASE_KEY
+    const supabaseUrl=  process.env.SUPABASE_URL
     const openAIApiKey = process.env.OPENAI_API_KEY
-    console.log({sbApiKey},{sbUrl},{openAIApiKey})
     const embeddings = new OpenAIEmbeddings({openAIApiKey});
       
       const client = createClient(
-      sbUrl,  sbApiKey
+      supabaseUrl,  supabaseKey
       );
       
      await SupabaseVectorStore.fromDocuments(output,embeddings,{client,tableName:'documents'});

@@ -3,14 +3,14 @@ import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase"
 import { OpenAIEmbeddings } from "@langchain/openai";
 
 
-    const sbApiKey= process.env.SUPABASE_API_KEY
-    const sbUrl=  process.env.SUPABASE_URL_CHAT_BOT
+    const supabaseKey= process.env.SUPABASE_KEY
+    const supabaseUrl=  process.env.SUPABASE_URL
     const openAIApiKey = process.env.OPENAI_API_KEY
     
     const embeddings = new OpenAIEmbeddings({openAIApiKey});
       
       const client = createClient(
-      sbUrl,  sbApiKey
+      supabaseUrl,  supabaseKey
       );
       
      const vectorStore = new SupabaseVectorStore(embeddings,{

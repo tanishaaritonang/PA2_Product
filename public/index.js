@@ -7,13 +7,9 @@ const clearChatsBtn = document.getElementById('clear-chats-btn');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 
 function setupEventListeners() {
-    
     // Sidebar toggle
     sidebarToggle.addEventListener('click', toggleSidebar);
-
-
 }
-
 
 // Generate a session ID when the page loads
 let sessionId = Date.now().toString();
@@ -64,11 +60,41 @@ function restoreChat(chatId) {
         // Clear current conversation
         chatbotConversation.innerHTML = '';
   
-        
         // Add restored messages
         addMessageToUI(chat.question, 'human');
         addMessageToUI(chat.response, 'ai');
     }
+}
+
+// Fetch popular prompts from the server
+async function fetchPopularPrompts() {
+    try {
+        const response = await fetch('http://localhost:3000/popular-prompts');
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        const prompts = await response.json();
+        renderPopularPrompts(prompts);
+    } catch (error) {
+        console.error('Error fetching popular prompts:', error);
+    }
+}
+
+// Render popular prompts as buttons
+function renderPopularPrompts(prompts) {
+    const container = document.getElementById('popular-prompts-container');
+    container.innerHTML = '';
+    
+    prompts.forEach(prompt => {
+        const button = document.createElement('button');
+        button.classList.add('popular-prompt-btn');
+        button.textContent = prompt;
+        button.addEventListener('click', () => {
+            userInput.value = prompt;
+            userInput.focus();
+        });
+        container.appendChild(button);
+    });
 }
 
 button.addEventListener("click", (e) => {
@@ -88,29 +114,21 @@ userInput.addEventListener("keypress", (e) => {
 clearChatsBtn.addEventListener('click', () => {
     localStorage.removeItem('recentChats');
     recentChatsContainer.innerHTML = '';
-    chatbotConversation.innerHTML = `
-        <div class="default-text">
-            <h1>Anaques</h1>
-            <img src="./img/logo.png" alt="Anaques Logo" style="width: 200px; height: auto; display: block; margin: 10px auto;">
-            <h2>Hello! I Am Ready To Help You Explore and Wonder</h2>
-            <p>Ask me anything what’s on your mind.</p>
-            <p> Am here to assist you!</p>
-        </div>
-    `;
 });
 
 async function handleUserMessage() {
     const question = userInput.value;
     if (!question.trim()) return; // Don't send empty messages
     
-   
     userInput.value = ""; // Clear input field
     button.disabled = true; // Disable button during request
-     // Remove default text but keep existing messages
-     const defaultText = chatbotConversation.querySelector(".default-text");
-     if (defaultText) {
-         defaultText.remove();
-     }
+    
+    // Remove default text but keep existing messages
+    const defaultText = chatbotConversation.querySelector(".default-text");
+    if (defaultText) {
+        defaultText.remove();
+    }
+    
     // Add human message to UI
     addMessageToUI(question, 'human');
 
@@ -137,6 +155,9 @@ async function handleUserMessage() {
 
         // Save to recent chats
         saveRecentChat(question, responseData);
+        
+        // Refresh popular prompts after successful message
+        fetchPopularPrompts();
 
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -160,7 +181,14 @@ function addMessageToUI(message, sender, isError = false) {
     chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
 }
 
-// Load recent chats on page load
-renderRecentChats();
+// Toggle sidebar function
+function toggleSidebar() {
+    const sidebar = document.querySelector(".sidebar");
+    sidebar.classList.toggle("collapsed");
+}
 
-
+// Load recent chats and popular prompts on page load
+document.addEventListener('DOMContentLoaded', () => {
+    renderRecentChats();
+    fetchPopularPrompts();
+});

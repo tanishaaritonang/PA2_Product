@@ -2,7 +2,8 @@
 import 'dotenv/config';
 import express from "express";
 import cors from 'cors';
-import { progressConversation } from "./main.js";
+import client, { progressConversation } from "./main.js";
+// import supabase from "./main.js";
 
 const app = express();
 
@@ -93,4 +94,25 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server berjalan pada port ${PORT}`);
+});
+
+// In index.js (server)
+// Add endpoint to get popular prompts
+app.get("/popular-prompts", async (req, res) => {
+    try {
+        const { data, error } = await client
+            .from('user_prompts')
+            .select('prompt')
+            .order('count', { ascending: false })
+            .limit(3);
+        
+        if (error) throw error;
+        
+        res.json(data.map(item => item.prompt));
+    } catch (error) {
+        console.error('Error fetching popular prompts:', error);
+        res.status(500).json({
+            error: "Failed to fetch popular prompts"
+        });
+    }
 });

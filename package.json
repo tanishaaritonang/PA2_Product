@@ -15,7 +15,7 @@
     "@langchain/mistralai": "^0.0.28",
     "@langchain/openai": "^0.2.7",
     "@qdrant/js-client-rest": "^1.13.0",
-    "@supabase/supabase-js": "^2.45.1",
+    "@supabase/supabase-js": "^2.49.3",
     "dotenv": "^16.4.7",
     "express": "^4.19.2",
     "express-session": "^1.18.1",
