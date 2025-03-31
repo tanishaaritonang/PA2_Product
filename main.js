@@ -75,46 +75,97 @@ async function getSimilarPopularPrompts(
     // Find similar prompts
     const { data, error } = await client.rpc("find_similar_prompts", {
       query_embedding: embedding,
-      similarity_threshold: 0.6,
-      match_count: 5, // Get more to have better options after filtering
+      similarity_threshold: 0.65,
+      match_count: 8, // Get more to have better filtering options
     });
 
     if (error) throw error;
 
-    // Filter out the exact match and low similarity
+    // Filter out the exact match
     const filtered = data.filter(
-      (item) =>
-        item.similarity > 0.7 &&
-        item.prompt.toLowerCase() !== question.toLowerCase()
+      (item) => item.prompt.toLowerCase() !== question.toLowerCase()
     );
 
-    console.log("Filtered similar prompts:", filtered);
+    // Apply a secondary filter based on similarity threshold
+    const highQualityMatches = filtered.filter((item) => item.similarity > 0.7);
+
+    console.log("High quality similar prompts:", highQualityMatches);
 
     // If we're incrementing similar prompts (for when a question is asked)
-    if (incrementSimilar && filtered.length > 0) {
+    if (incrementSimilar && highQualityMatches.length > 0) {
       try {
-        // Increment counts for all similar prompts
-        await client.from("user_prompts").upsert(
-          filtered.map((item) => ({
-            prompt: item.prompt,
-            count: item.count + 1,
-            last_used_at: new Date().toISOString(),
-          })),
-          { onConflict: "prompt" }
-        );
+        // Calculate increment based on similarity
+        const updatesPromises = highQualityMatches.map((item) => {
+          // Higher similarity = higher increment
+          const incrementAmount = Math.ceil(item.similarity * 2);
+
+          return client
+            .from("user_prompts")
+            .update({
+              count: item.count + incrementAmount,
+              last_used_at: new Date().toISOString(),
+            })
+            .eq("id", item.id);
+        });
+
+        await Promise.all(updatesPromises);
       } catch (error) {
         console.error("Error incrementing similar prompts:", error);
       }
     }
 
-    // Return top 3 most popular similar prompts
-    return filtered
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
-      .map((item) => item.prompt);
+    // Return top 3 based on composite_score (already sorted by the SQL function)
+    return highQualityMatches.slice(0, 3).map((item) => ({
+      prompt: item.prompt,
+      count: item.count,
+      score: item.composite_score,
+    }));
   } catch (error) {
     console.error("Error finding similar prompts:", error);
     return [];
+  }
+}
+
+async function storeUserPrompt(question, embedding) {
+  try {
+    // Check if prompt already exists
+    const { data: existingPrompts, error: queryError } = await client
+      .from("user_prompts")
+      .select("id, count")
+      .eq("prompt", question)
+      .limit(1);
+
+    if (queryError) throw queryError;
+
+    if (existingPrompts && existingPrompts.length > 0) {
+      // Update existing prompt
+      console.log(`Updating existing prompt: ${question}`);
+      const { error: updateError } = await client
+        .from("user_prompts")
+        .update({
+          count: existingPrompts[0].count + 1,
+          last_used_at: new Date().toISOString(),
+        })
+        .eq("id", existingPrompts[0].id);
+
+      if (updateError) throw updateError;
+    } else {
+      // Insert new prompt
+      console.log(`Inserting new prompt: ${question}`);
+      const { error: insertError } = await client.from("user_prompts").insert({
+        prompt: question,
+        count: 1,
+        embedding: embedding,
+        last_used_at: new Date().toISOString(),
+      });
+
+      if (insertError) throw insertError;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error storing prompt:", error);
+    return false;
   }
 }
 
@@ -166,15 +217,7 @@ export async function progressConversation(question, sessionId) {
         // Store the current prompt and increment similar prompts
         await Promise.all([
           // Store the current prompt
-          client.from("user_prompts").upsert(
-            {
-              prompt: question,
-              count: 1,
-              embedding: embedding,
-              last_used_at: new Date().toISOString(),
-            },
-            { onConflict: "prompt" }
-          ),
+          await storeUserPrompt(question, embedding),
 
           // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
