@@ -29,7 +29,7 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
   standaloneQuestionTemplate
 );
 
-const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is Anaques. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont others question from context in answer
+const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is Anaques. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
 
 Context: {context}
 Conversation History: {conv_history}
@@ -97,12 +97,10 @@ async function getSimilarPopularPrompts(
         // Calculate increment based on similarity
         const updatesPromises = highQualityMatches.map((item) => {
           // Higher similarity = higher increment
-          const incrementAmount = Math.ceil(item.similarity * 2);
-
           return client
             .from("user_prompts")
             .update({
-              count: item.count + incrementAmount,
+              count: item.count + 1,
               last_used_at: new Date().toISOString(),
             })
             .eq("id", item.id);
@@ -140,6 +138,8 @@ async function storeUserPrompt(question, embedding) {
     if (existingPrompts && existingPrompts.length > 0) {
       // Update existing prompt
       console.log(`Updating existing prompt: ${question}`);
+
+      // UPDATE user_prompts SET count = count + 1 WHERE id = count
       const { error: updateError } = await client
         .from("user_prompts")
         .update({
@@ -152,6 +152,8 @@ async function storeUserPrompt(question, embedding) {
     } else {
       // Insert new prompt
       console.log(`Inserting new prompt: ${question}`);
+
+      // INSERT INTO user_prompts (prompt, count, embedding) VALUES (?, ?, ?)
       const { error: insertError } = await client.from("user_prompts").insert({
         prompt: question,
         count: 1,
@@ -217,10 +219,10 @@ export async function progressConversation(question, sessionId) {
         // Store the current prompt and increment similar prompts
         await Promise.all([
           // Store the current prompt
-          await storeUserPrompt(question, embedding),
 
           // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
+          await storeUserPrompt(question, embedding),
         ]);
       } catch (error) {
         console.error("Error tracking prompt:", error);
