@@ -161,20 +161,20 @@ export async function progressConversation(question, sessionId) {
         const embeddingData = await embeddingResponse.json();
         const embedding = embeddingData.data[0].embedding;
 
-        console.log("Embedding 1:", embedding);
+        // console.log("Embedding 1:", embedding);
 
         // Store the current prompt and increment similar prompts
         await Promise.all([
           // Store the current prompt
-          //   client.from("user_prompts").upsert(
-          //     {
-          //       prompt: question,
-          //       count: 1,
-          //       embedding: embedding,
-          //       last_used_at: new Date().toISOString(),
-          //     },
-          //     { onConflict: "prompt" }
-          //   ),
+          client.from("user_prompts").upsert(
+            {
+              prompt: question,
+              count: 1,
+              embedding: embedding,
+              last_used_at: new Date().toISOString(),
+            },
+            { onConflict: "prompt" }
+          ),
 
           // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
