@@ -145,43 +145,89 @@ app.get("/popular-prompts", async (req, res) => {
 });
 
 app.post("/upload", upload.single("file"), async (req, res) => {
+  // Validate file exists
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  let filePath = req.file.path;
+
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
     // Read the uploaded file
-    const text = await fs.readFile(req.file.path, "utf-8");
+    const text = await fs.readFile(filePath, "utf-8");
 
-    // Process the text with LangChain
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 500,
-      separators: ["\n\n", "\n", " ", ""],
-      chunkOverlap: 50,
+    // First split by double newlines to separate each Q&A pair
+    const qaPairs = text.split("\n\n").filter((pair) => pair.trim());
+
+    // Create documents for each Q&A pair with metadata
+    const documents = qaPairs.map((pair, index) => {
+      const [question, answer] = pair.split("\n");
+      return {
+        pageContent: `${question}\n${answer}`.trim(),
+        metadata: {
+          question: question?.trim() || "",
+          answer: answer?.trim() || "",
+          source: req.file.originalname,
+          pairId: index + 1,
+        },
+      };
     });
 
-    const output = await splitter.createDocuments([text]);
+    // Initialize services with validation
+    if (
+      !process.env.SUPABASE_URL ||
+      !process.env.SUPABASE_KEY ||
+      !process.env.OPENAI_API_KEY
+    ) {
+      throw new Error("Missing required environment variables");
+    }
 
-    // Initialize Supabase and OpenAI
-    const supabaseKey = process.env.SUPABASE_KEY;
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const openAIApiKey = process.env.OPENAI_API_KEY;
-    const embeddings = new OpenAIEmbeddings({ openAIApiKey });
+    const embeddings = new OpenAIEmbeddings({
+      openAIApiKey: process.env.OPENAI_API_KEY,
+    });
 
-    const client = createClient(supabaseUrl, supabaseKey);
+    const client = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY
+    );
 
-    // Store the vectors in Supabase
-    await SupabaseVectorStore.fromDocuments(output, embeddings, {
+    // Store vectors with custom schema
+    await SupabaseVectorStore.fromDocuments(documents, embeddings, {
       client,
       tableName: "documents",
+      queryName: "match_documents",
+      columns: {
+        id: "id",
+        content: "content",
+        metadata: "metadata",
+        embedding: "embedding",
+        question: "question",
+        answer: "answer",
+        source: "source",
+      },
     });
 
     // Clean up the uploaded file
-    await fs.unlink(req.file.path);
+    await fs.unlink(filePath);
 
-    res.json({ message: "File processed and stored successfully!" });
+    return res.json({
+      success: true,
+      message: "File processed successfully",
+      pairsProcessed: documents.length,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error processing file" });
+    console.error("Processing error:", error);
+
+    // Attempt to clean up file even if error occurs
+    try {
+      if (filePath) await fs.unlink(filePath);
+    } catch (cleanupError) {
+      console.error("File cleanup failed:", cleanupError);
+    }
+
+    return res.status(500).json({
+      error: "Error processing file",
+      details: error.message,
+    });
   }
 });
