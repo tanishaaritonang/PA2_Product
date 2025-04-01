@@ -25,7 +25,7 @@ const handleLogin = async (req, res) => {
       .eq("email", username)
       .single();
 
-    if (error) throw error;
+    if (error) throw Error("User not found");
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -73,7 +73,7 @@ const handleLogin = async (req, res) => {
     console.error("Login error:", err);
     res.status(500).json({
       success: false,
-      message: "Server error during login",
+      message: err.message || "Server error during login",
     });
   }
 };
