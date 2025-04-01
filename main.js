@@ -93,15 +93,19 @@ async function getSimilarPopularPrompts(
     // If we're incrementing similar prompts (for when a question is asked)
     if (incrementSimilar && filtered.length > 0) {
       try {
-        // Increment counts for all similar prompts
-        await client.from("user_prompts").upsert(
-          filtered.map((item) => ({
-            prompt: item.prompt,
-            count: item.count + 1,
-            last_used_at: new Date().toISOString(),
-          })),
-          { onConflict: "prompt" }
-        );
+        // Calculate increment based on similarity
+        const updatesPromises = highQualityMatches.map((item) => {
+          // Higher similarity = higher increment
+          return client
+            .from("user_prompts")
+            .update({
+              count: item.count + 1,
+              last_used_at: new Date().toISOString(),
+            })
+            .eq("id", item.id);
+        });
+
+        await Promise.all(updatesPromises);
       } catch (error) {
         console.error("Error incrementing similar prompts:", error);
       }
@@ -115,6 +119,53 @@ async function getSimilarPopularPrompts(
   } catch (error) {
     console.error("Error finding similar prompts:", error);
     return [];
+  }
+}
+
+async function storeUserPrompt(question, embedding) {
+  try {
+    // Check if prompt already exists
+    const { data: existingPrompts, error: queryError } = await client
+      .from("user_prompts")
+      .select("id, count")
+      .eq("prompt", question)
+      .limit(1);
+
+    if (queryError) throw queryError;
+
+    if (existingPrompts && existingPrompts.length > 0) {
+      // Update existing prompt
+      console.log(`Updating existing prompt: ${question}`);
+
+      // UPDATE user_prompts SET count = count + 1 WHERE id = count
+      const { error: updateError } = await client
+        .from("user_prompts")
+        .update({
+          count: existingPrompts[0].count + 1,
+          last_used_at: new Date().toISOString(),
+        })
+        .eq("id", existingPrompts[0].id);
+
+      if (updateError) throw updateError;
+    } else {
+      // Insert new prompt
+      console.log(`Inserting new prompt: ${question}`);
+
+      // INSERT INTO user_prompts (prompt, count, embedding) VALUES (?, ?, ?)
+      const { error: insertError } = await client.from("user_prompts").insert({
+        prompt: question,
+        count: 1,
+        embedding: embedding,
+        last_used_at: new Date().toISOString(),
+      });
+
+      if (insertError) throw insertError;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error storing prompt:", error);
+    return false;
   }
 }
 
@@ -166,18 +217,10 @@ export async function progressConversation(question, sessionId) {
         // Store the current prompt and increment similar prompts
         await Promise.all([
           // Store the current prompt
-          client.from("user_prompts").upsert(
-            {
-              prompt: question,
-              count: 1,
-              embedding: embedding,
-              last_used_at: new Date().toISOString(),
-            },
-            { onConflict: "prompt" }
-          ),
 
           // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
+          await storeUserPrompt(question, embedding),
         ]);
       } catch (error) {
         console.error("Error tracking prompt:", error);
