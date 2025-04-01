@@ -29,7 +29,7 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
   standaloneQuestionTemplate
 );
 
-const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is Anaques. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont others question from context in answer
+const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is Anaques. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
 
 Context: {context}
 Conversation History: {conv_history}
@@ -75,97 +75,46 @@ async function getSimilarPopularPrompts(
     // Find similar prompts
     const { data, error } = await client.rpc("find_similar_prompts", {
       query_embedding: embedding,
-      similarity_threshold: 0.65,
-      match_count: 8, // Get more to have better filtering options
+      similarity_threshold: 0.6,
+      match_count: 5, // Get more to have better options after filtering
     });
 
     if (error) throw error;
 
-    // Filter out the exact match
+    // Filter out the exact match and low similarity
     const filtered = data.filter(
-      (item) => item.prompt.toLowerCase() !== question.toLowerCase()
+      (item) =>
+        item.similarity > 0.7 &&
+        item.prompt.toLowerCase() !== question.toLowerCase()
     );
 
-    // Apply a secondary filter based on similarity threshold
-    const highQualityMatches = filtered.filter((item) => item.similarity > 0.7);
-
-    console.log("High quality similar prompts:", highQualityMatches);
+    console.log("Filtered similar prompts:", filtered);
 
     // If we're incrementing similar prompts (for when a question is asked)
-    if (incrementSimilar && highQualityMatches.length > 0) {
+    if (incrementSimilar && filtered.length > 0) {
       try {
-        // Calculate increment based on similarity
-        const updatesPromises = highQualityMatches.map((item) => {
-          // Higher similarity = higher increment
-          const incrementAmount = Math.ceil(item.similarity * 2);
-
-          return client
-            .from("user_prompts")
-            .update({
-              count: item.count + incrementAmount,
-              last_used_at: new Date().toISOString(),
-            })
-            .eq("id", item.id);
-        });
-
-        await Promise.all(updatesPromises);
+        // Increment counts for all similar prompts
+        await client.from("user_prompts").upsert(
+          filtered.map((item) => ({
+            prompt: item.prompt,
+            count: item.count + 1,
+            last_used_at: new Date().toISOString(),
+          })),
+          { onConflict: "prompt" }
+        );
       } catch (error) {
         console.error("Error incrementing similar prompts:", error);
       }
     }
 
-    // Return top 3 based on composite_score (already sorted by the SQL function)
-    return highQualityMatches.slice(0, 3).map((item) => ({
-      prompt: item.prompt,
-      count: item.count,
-      score: item.composite_score,
-    }));
+    // Return top 3 most popular similar prompts
+    return filtered
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3)
+      .map((item) => item.prompt);
   } catch (error) {
     console.error("Error finding similar prompts:", error);
     return [];
-  }
-}
-
-async function storeUserPrompt(question, embedding) {
-  try {
-    // Check if prompt already exists
-    const { data: existingPrompts, error: queryError } = await client
-      .from("user_prompts")
-      .select("id, count")
-      .eq("prompt", question)
-      .limit(1);
-
-    if (queryError) throw queryError;
-
-    if (existingPrompts && existingPrompts.length > 0) {
-      // Update existing prompt
-      console.log(`Updating existing prompt: ${question}`);
-      const { error: updateError } = await client
-        .from("user_prompts")
-        .update({
-          count: existingPrompts[0].count + 1,
-          last_used_at: new Date().toISOString(),
-        })
-        .eq("id", existingPrompts[0].id);
-
-      if (updateError) throw updateError;
-    } else {
-      // Insert new prompt
-      console.log(`Inserting new prompt: ${question}`);
-      const { error: insertError } = await client.from("user_prompts").insert({
-        prompt: question,
-        count: 1,
-        embedding: embedding,
-        last_used_at: new Date().toISOString(),
-      });
-
-      if (insertError) throw insertError;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error storing prompt:", error);
-    return false;
   }
 }
 
@@ -217,7 +166,15 @@ export async function progressConversation(question, sessionId) {
         // Store the current prompt and increment similar prompts
         await Promise.all([
           // Store the current prompt
-          await storeUserPrompt(question, embedding),
+          client.from("user_prompts").upsert(
+            {
+              prompt: question,
+              count: 1,
+              embedding: embedding,
+              last_used_at: new Date().toISOString(),
+            },
+            { onConflict: "prompt" }
+          ),
 
           // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
