@@ -217,18 +217,6 @@
             />
           </div>
 
-          <div class="form-group">
-            <label for="tags"
-              >Global Tags (applied to all entries, comma separated):</label
-            >
-            <input
-              type="text"
-              id="tags"
-              name="tags"
-              placeholder="e.g., imported, documentation, guide"
-            />
-          </div>
-
           <div
             class="preview-section"
             id="previewSection"
@@ -266,7 +254,6 @@
       // DOM Elements
       const uploadForm = document.getElementById("uploadForm");
       const fileUpload = document.getElementById("fileUpload");
-      const tagsInput = document.getElementById("tags");
       const previewSection = document.getElementById("previewSection");
       const filePreview = document.getElementById("filePreview");
       const questionList = document.getElementById("questionList");
@@ -298,7 +285,7 @@
       });
 
       // Form submission
-      uploadForm.addEventListener("submit", function (e) {
+      uploadForm.addEventListener("submit", async function (e) {
         e.preventDefault();
 
         const file = fileUpload.files[0];
@@ -307,23 +294,39 @@
           return;
         }
 
-        // Get global tags
-        const globalTags = tagsInput.value
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag.length > 0);
+        try {
+          showStatus("Uploading and processing file...", "info");
 
-        // Process file
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const content = event.target.result;
-          processContent(content, globalTags);
-        };
-        reader.readAsText(file);
+          // Create FormData object to send file
+          const formData = new FormData();
+          formData.append("file", file);
+
+          // Send to your Express.js backend
+          const response = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+          }
+
+          const result = await response.json();
+          showStatus(
+            result.message || "File processed successfully!",
+            "success"
+          );
+
+          // If your backend returns the processed questions, you can update the UI
+          if (result.questions) {
+            questions = result.questions;
+            renderQuestions();
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          showStatus(`Error: ${error.message}`, "error");
+        }
       });
-
-      // Process file content into question-answer pairs
-      function processContent(content, globalTags) {}
 
       // Show status message
       function showStatus(message, type) {
@@ -368,14 +371,6 @@
           answerDiv.className = "question-answer";
           answerDiv.textContent = answerText;
           li.appendChild(answerDiv);
-
-          // Add metadata
-          if (q.metadata && q.metadata.tags && q.metadata.tags.length > 0) {
-            const metaDiv = document.createElement("div");
-            metaDiv.className = "question-metadata";
-            metaDiv.textContent = `Tags: ${q.metadata.tags.join(", ")}`;
-            li.appendChild(metaDiv);
-          }
 
           questionList.appendChild(li);
         });

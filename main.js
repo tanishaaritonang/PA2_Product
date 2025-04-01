@@ -94,7 +94,7 @@ async function getSimilarPopularPrompts(
     if (incrementSimilar && filtered.length > 0) {
       try {
         // Calculate increment based on similarity
-        const updatesPromises = highQualityMatches.map((item) => {
+        const updatesPromises = data.map((item) => {
           // Higher similarity = higher increment
           return client
             .from("user_prompts")

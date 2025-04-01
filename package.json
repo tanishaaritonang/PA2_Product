@@ -16,10 +16,13 @@
     "@langchain/openai": "^0.2.7",
     "@qdrant/js-client-rest": "^1.13.0",
     "@supabase/supabase-js": "^2.49.3",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.19.2",
     "express-session": "^1.18.1",
     "langchain": "^0.2.16",
+    "multer": "^1.4.5-lts.2",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4"
   },
