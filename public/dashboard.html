@@ -249,135 +249,257 @@
 
     <script>
       // Sample data array (in a real app, this would be fetched from your database)
-      let questions = [];
+     // Sample data array (in a real app, this would be fetched from your database)
+// Sample data array (in a real app, this would be fetched from your database)
+let questions = [];
+let allQuestions = [];
+let showingAllQuestions = false;
 
-      // DOM Elements
-      const uploadForm = document.getElementById("uploadForm");
-      const fileUpload = document.getElementById("fileUpload");
-      const previewSection = document.getElementById("previewSection");
-      const filePreview = document.getElementById("filePreview");
-      const questionList = document.getElementById("questionList");
-      const statusMessage = document.getElementById("statusMessage");
+// DOM Elements
+const uploadForm = document.getElementById("uploadForm");
+const fileUpload = document.getElementById("fileUpload");
+const previewSection = document.getElementById("previewSection");
+const filePreview = document.getElementById("filePreview");
+const questionList = document.getElementById("questionList");
+const statusMessage = document.getElementById("statusMessage");
 
-      // Event listener for file selection
-      fileUpload.addEventListener("change", function (e) {
-        const file = e.target.files[0];
-        if (!file) {
-          previewSection.style.display = "none";
-          return;
-        }
+// Event listener for file selection
+fileUpload.addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) {
+    previewSection.style.display = "none";
+    return;
+  }
 
-        // Show preview section
-        previewSection.style.display = "block";
+  // Show preview section
+  previewSection.style.display = "block";
 
-        // Read file content
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const content = event.target.result;
-          // Display preview (limited to first 2000 characters to avoid performance issues)
-          filePreview.textContent =
-            content.length > 2000
-              ? content.substring(0, 2000) +
-                "... (content truncated for preview)"
-              : content;
-        };
-        reader.readAsText(file);
-      });
+  // Read file content
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const content = event.target.result;
+    // Display preview (limited to first 2000 characters to avoid performance issues)
+    filePreview.textContent =
+      content.length > 2000
+        ? content.substring(0, 2000) +
+          "... (content truncated for preview)"
+        : content;
+  };
+  reader.readAsText(file);
+});
 
-      // Form submission
-      uploadForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
+// Form submission
+uploadForm.addEventListener("submit", async function (e) {
+  e.preventDefault();
 
-        const file = fileUpload.files[0];
-        if (!file) {
-          showStatus("Please select a file to upload.", "error");
-          return;
-        }
+  const file = fileUpload.files[0];
+  if (!file) {
+    showStatus("Please select a file to upload.", "error");
+    return;
+  }
 
-        try {
-          showStatus("Uploading and processing file...", "info");
+  try {
+    showStatus("Uploading and processing file...", "info");
 
-          // Create FormData object to send file
-          const formData = new FormData();
-          formData.append("file", file);
+    // Create FormData object to send file
+    const formData = new FormData();
+    formData.append("file", file);
 
-          // Send to your Express.js backend
-          const response = await fetch("/upload", {
-            method: "POST",
-            body: formData,
-          });
+    // Send to your Express.js backend
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-          if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-          }
+    if (!response.ok) {
+      throw new Error(`Server responded with ${response.status}`);
+    }
 
-          const result = await response.json();
-          showStatus(
-            result.message || "File processed successfully!",
-            "success"
-          );
+    const result = await response.json();
+    console.log("Server response:", result);
+    
+    showStatus(
+      result.message || "File processed successfully!",
+      "success"
+    );
 
-          // If your backend returns the processed questions, you can update the UI
-          if (result.questions) {
-            questions = result.questions;
-            renderQuestions();
-          }
-        } catch (error) {
-          console.error("Upload error:", error);
-          showStatus(`Error: ${error.message}`, "error");
-        }
-      });
+    // Update questions with newly processed questions
+    if (result.questions && result.questions.length > 0) {
+      questions = result.questions;
+      showingAllQuestions = false;
+      renderQuestions(questions);
+      
+      // Create "See All" button if not already present
+      createSeeAllButton();
+    } else {
+      console.warn("No questions in server response");
+    }
+  } catch (error) {
+    console.error("Upload error:", error);
+    showStatus(`Error: ${error.message}`, "error");
+  }
+});
 
-      // Show status message
-      function showStatus(message, type) {
-        statusMessage.textContent = message;
-        statusMessage.className = `status-message ${type}`;
-        statusMessage.style.display = "block";
+// Function to create "See All" button
+function createSeeAllButton() {
+  // Check if button already exists
+  let seeAllButton = document.getElementById("seeAllButton");
+  
+  if (!seeAllButton) {
+    seeAllButton = document.createElement("button");
+    seeAllButton.id = "seeAllButton";
+    seeAllButton.className = "see-all-button";
+    seeAllButton.style.marginTop = "20px";
+    seeAllButton.style.backgroundColor = "#6c757d";
+    updateSeeAllButtonText();
+    
+    seeAllButton.addEventListener("click", function() {
+      toggleQuestionView();
+    });
+    
+    // Add button below the questions list
+    document.querySelector(".section:nth-child(2)").appendChild(seeAllButton);
+  }
+}
 
-        // Auto hide after 5 seconds
-        setTimeout(() => {
-          statusMessage.style.display = "none";
-        }, 5000);
+// Function to update button text based on current state
+function updateSeeAllButtonText() {
+  const button = document.getElementById("seeAllButton");
+  if (!button) return;
+  
+  button.textContent = showingAllQuestions ? "Show Recent Upload Only" : "Show All Questions";
+}
+
+// Function to toggle between showing recently uploaded questions and all questions
+async function toggleQuestionView() {
+  if (!showingAllQuestions) {
+    // Switch to showing all questions
+    await fetchAllQuestions();
+    renderQuestions(allQuestions);
+    showingAllQuestions = true;
+  } else {
+    // Switch back to showing only recently uploaded questions
+    renderQuestions(questions);
+    showingAllQuestions = false;
+  }
+  
+  updateSeeAllButtonText();
+}
+
+// Function to fetch all questions from the server
+async function fetchAllQuestions() {
+  try {
+    const response = await fetch("/questions");
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log("All questions fetched:", result);
+    
+    if (result.questions) {
+      allQuestions = result.questions;
+    } else {
+      console.warn("No questions array in server response");
+    }
+  } catch (error) {
+    console.error("Error fetching all questions:", error);
+    showStatus(`Error fetching questions: ${error.message}`, "error");
+  }
+}
+
+// Show status message
+function showStatus(message, type) {
+  statusMessage.textContent = message;
+  statusMessage.className = `status-message ${type}`;
+  statusMessage.style.display = "block";
+
+  // Auto hide after 5 seconds
+  setTimeout(() => {
+    statusMessage.style.display = "none";
+  }, 5000);
+}
+
+// Render the question list
+function renderQuestions(questionsToRender) {
+  questionList.innerHTML = "";
+
+  if (!questionsToRender || questionsToRender.length === 0) {
+    questionList.innerHTML =
+      "<p>No questions have been uploaded yet.</p>";
+    return;
+  }
+  
+  questionsToRender.forEach((q) => {
+    // Create list item
+    const li = document.createElement("li");
+    li.className = "question-item";
+    
+    // Handle different possible data formats
+    let questionText, answerText;
+    
+    if (q.question && q.answer) {
+      // If format is { question: "...", answer: "..." }
+      questionText = q.question;
+      answerText = q.answer;
+    } else if (q.content) {
+      // If format is { content: "Question: ...\n\nAnswer: ..." }
+      const parts = q.content.split("\n\n");
+      questionText = parts[0].replace("Question: ", "");
+      answerText = parts[1]?.replace("Answer: ", "") || "No answer provided";
+    } else {
+      // Direct string format (fallback)
+      const fullText = q.toString();
+      const qIndex = fullText.indexOf("Question:");
+      const aIndex = fullText.indexOf("Answer:");
+      
+      if (qIndex !== -1 && aIndex !== -1) {
+        questionText = fullText.substring(qIndex + 9, aIndex).trim();
+        answerText = fullText.substring(aIndex + 7).trim();
+      } else {
+        questionText = "Question format not recognized";
+        answerText = "Answer format not recognized";
       }
+    }
 
-      // Render the question list
-      function renderQuestions() {
-        questionList.innerHTML = "";
+    // Add question header
+    const header = document.createElement("div");
+    header.className = "question-header";
+    header.textContent = questionText;
+    li.appendChild(header);
 
-        if (questions.length === 0) {
-          questionList.innerHTML =
-            "<p>No questions have been uploaded yet.</p>";
-          return;
-        }
+    // Add answer
+    const answerDiv = document.createElement("div");
+    answerDiv.className = "question-answer";
+    answerDiv.textContent = answerText;
+    li.appendChild(answerDiv);
 
-        questions.forEach((q) => {
-          // Split content to get question and answer parts
-          const parts = q.content.split("\n\n");
-          const questionText = parts[0].replace("Question: ", "");
-          const answerText = parts[1].replace("Answer: ", "");
+    questionList.appendChild(li);
+  });
+}
 
-          // Create list item
-          const li = document.createElement("li");
-          li.className = "question-item";
-
-          // Add question header
-          const header = document.createElement("div");
-          header.className = "question-header";
-          header.textContent = questionText;
-          li.appendChild(header);
-
-          // Add answer
-          const answerDiv = document.createElement("div");
-          answerDiv.className = "question-answer";
-          answerDiv.textContent = answerText;
-          li.appendChild(answerDiv);
-
-          questionList.appendChild(li);
-        });
-      }
-
-      // Initial render
-      renderQuestions();
+// Add some CSS for the "See All" button (you can move this to your CSS file)
+const style = document.createElement('style');
+style.textContent = `
+  .see-all-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: block;
+    margin: 20px auto;
+  }
+  
+  .see-all-button:hover {
+    background-color: #5a6268;
+  }
+`;
+document.head.appendChild(style);
     </script>
   </body>
 </html>
