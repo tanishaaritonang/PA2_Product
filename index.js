@@ -258,6 +258,7 @@ app.get("/questions", async (req, res) => {
     );
 
     // Fetch questions from the documents table
+    // Note: Adjust the query based on your actual table structure
     const { data, error } = await supabase
       .from("documents")
       .select("content, metadata")
@@ -295,6 +296,76 @@ app.get("/questions", async (req, res) => {
     console.error("Error fetching questions:", error);
     res.status(500).json({
       error: "Failed to fetch questions",
+      details: error.message
+    });
+  }
+});
+
+
+// Add this endpoint to your server
+app.post("/delete-upload", async (req, res) => {
+  try {
+    const { source, uploadedAt } = req.body;
+
+    if (!source) {
+      return res.status(400).json({
+        error: "Source filename is required for deletion"
+      });
+    }
+
+    // Initialize Supabase client
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+      throw new Error("Missing required Supabase environment variables");
+    }
+
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY
+    );
+
+    // First, get the IDs of records to delete (since Supabase needs exact IDs for deletion)
+    let query = supabase
+      .from("documents")
+      .select("id")
+      .eq("metadata->>source", source);
+
+    if (uploadedAt) {
+      query = query.eq("metadata->>uploadedAt", uploadedAt);
+    }
+
+    const { data: recordsToDelete, error: fetchError } = await query;
+
+    if (fetchError) throw fetchError;
+
+    if (!recordsToDelete || recordsToDelete.length === 0) {
+      return res.json({
+        success: true,
+        message: "No records found to delete",
+        deletedCount: 0
+      });
+    }
+
+    // Extract just the IDs
+    const idsToDelete = recordsToDelete.map(record => record.id);
+
+    // Perform the deletion
+    const { error: deleteError, count } = await supabase
+      .from("documents")
+      .delete()
+      .in("id", idsToDelete);
+
+    if (deleteError) throw deleteError;
+
+    return res.json({
+      success: true,
+      message: `Deleted ${count} records from upload '${source}'`,
+      deletedCount: count
+    });
+
+  } catch (error) {
+    console.error("Deletion error:", error);
+    return res.status(500).json({
+      error: "Error deleting upload",
       details: error.message
     });
   }

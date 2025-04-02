@@ -1,446 +1,518 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Question and Answer Database - File Upload</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Arial", sans-serif;
-      }
 
-      body {
-        background-color: #f5f5f5;
-        color: #333;
-        line-height: 1.6;
-        padding: 20px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Question and Answer Database - File Upload</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Arial", sans-serif;
+    }
 
-      .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 20px;
-      }
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
 
-      h1 {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #2c3e50;
-      }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-      .section {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 30px;
-      }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
 
-      h2 {
-        margin-bottom: 20px;
-        color: #2c3e50;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
+    .section {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
 
-      /* Form Styles */
-      .form-group {
-        margin-bottom: 20px;
-      }
+    h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
 
-      label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: bold;
-      }
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 20px;
+    }
 
-      input[type="file"] {
-        display: block;
-        margin-bottom: 15px;
-      }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
 
-      .file-instructions {
-        background-color: #f8f9fa;
-        border-left: 4px solid #6c757d;
-        padding: 15px;
-        margin-bottom: 20px;
-        font-size: 14px;
-      }
+    input[type="file"] {
+      display: block;
+      margin-bottom: 15px;
+    }
 
-      .file-format-example {
-        background-color: #f0f0f0;
-        padding: 15px;
-        border-radius: 4px;
-        margin-top: 10px;
-        font-family: monospace;
-        white-space: pre;
-      }
+    .file-instructions {
+      background-color: #f8f9fa;
+      border-left: 4px solid #6c757d;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
 
-      input[type="text"] {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
-      }
+    .file-format-example {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-family: monospace;
+      white-space: pre;
+    }
 
-      button {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        font-size: 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
 
-      button:hover {
-        background-color: #2980b9;
-      }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
 
-      /* Question List Styles */
-      .question-list {
-        list-style: none;
-      }
+    button:hover {
+      background-color: #2980b9;
+    }
 
-      .question-item {
-        background-color: #f9f9f9;
-        border-left: 4px solid #3498db;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 0 4px 4px 0;
-      }
+    /* Question List Styles */
+    .question-list {
+      list-style: none;
+    }
 
-      .question-header {
-        font-weight: bold;
-        margin-bottom: 8px;
-        color: #2c3e50;
-      }
+    .question-item {
+      background-color: #f9f9f9;
+      border-left: 4px solid #3498db;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 0 4px 4px 0;
+    }
 
-      .question-answer {
-        color: #555;
-        white-space: pre-line;
-      }
+    .question-header {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
 
-      .question-metadata {
-        font-size: 12px;
-        color: #888;
-        margin-top: 10px;
-        text-align: right;
-      }
+    .question-answer {
+      color: #555;
+      white-space: pre-line;
+    }
 
-      .preview-section {
-        background-color: #f0f7ff;
-        padding: 15px;
-        border-radius: 4px;
-        margin-top: 20px;
-        border: 1px dashed #3498db;
-        max-height: 400px;
-        overflow-y: auto;
-      }
+    .question-metadata {
+      font-size: 12px;
+      color: #888;
+      margin-top: 10px;
+      text-align: right;
+    }
 
-      .preview-title {
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #2c3e50;
-      }
+    .preview-section {
+      background-color: #f0f7ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      border: 1px dashed #3498db;
+      max-height: 400px;
+      overflow-y: auto;
+    }
 
-      .preview-content {
-        white-space: pre-line;
-        padding: 10px;
-        background-color: white;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-      }
+    .preview-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
 
-      .status-message {
-        margin-top: 15px;
-        padding: 10px;
-        border-radius: 4px;
-        text-align: center;
-      }
+    .preview-content {
+      white-space: pre-line;
+      padding: 10px;
+      background-color: white;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
 
-      .success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
+    .status-message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+    }
 
-      .error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Question and Answer Database</h1>
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
 
-      <!-- File Upload Form -->
-      <div class="section">
-        <h2>Upload Question & Answer File</h2>
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
 
-        <div class="file-instructions">
-          <p><strong>File Format Instructions:</strong></p>
-          <p>
-            Upload a text file (.txt) containing questions and answers in the
-            following format:
-          </p>
-          <div class="file-format-example">
-            Question: What is a database? Answer: A database is an organized
-            collection of structured information. Question: What is PostgreSQL?
-            Answer: PostgreSQL is a powerful, open source object-relational
-            database system. Question: What is an embedding? Answer: In machine
-            learning, an embedding is a representation of data in a
-            lower-dimensional space.
-          </div>
-          <p>
-            Each Question-Answer pair should be separated by a blank line, as
-            shown above.
-          </p>
+    #deleteRecentButton {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #deleteRecentButton:hover {
+      background-color: #c0392b;
+    }
+
+    #deleteStatus {
+      font-size: 14px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Question and Answer Database</h1>
+
+    <!-- File Upload Form -->
+    <div class="section">
+      <h2>Upload Question & Answer File</h2>
+
+      <div class="file-instructions">
+        <p><strong>File Format Instructions:</strong></p>
+        <p>
+          Upload a text file (.txt) containing questions and answers in the
+          following format:
+        </p>
+        <div class="file-format-example">
+          Question: What is a database? Answer: A database is an organized
+          collection of structured information. Question: What is PostgreSQL?
+          Answer: PostgreSQL is a powerful, open source object-relational
+          database system. Question: What is an embedding? Answer: In machine
+          learning, an embedding is a representation of data in a
+          lower-dimensional space.
+        </div>
+        <p>
+          Each Question-Answer pair should be separated by a blank line, as
+          shown above.
+        </p>
+      </div>
+
+      <form id="uploadForm">
+        <div class="form-group">
+          <label for="fileUpload">Select a text file:</label>
+          <input type="file" id="fileUpload" name="fileUpload" accept=".txt" required />
         </div>
 
-        <form id="uploadForm">
-          <div class="form-group">
-            <label for="fileUpload">Select a text file:</label>
-            <input
-              type="file"
-              id="fileUpload"
-              name="fileUpload"
-              accept=".txt"
-              required
-            />
+        <div class="preview-section" id="previewSection" style="display: none">
+          <div class="preview-title">File Preview:</div>
+          <div id="filePreview" class="preview-content">
+            Select a file to preview content...
           </div>
+        </div>
 
-          <div
-            class="preview-section"
-            id="previewSection"
-            style="display: none"
-          >
-            <div class="preview-title">File Preview:</div>
-            <div id="filePreview" class="preview-content">
-              Select a file to preview content...
-            </div>
-          </div>
+        <div id="statusMessage" class="status-message" style="display: none"></div>
 
-          <div
-            id="statusMessage"
-            class="status-message"
-            style="display: none"
-          ></div>
-
-          <button type="submit">Process and Upload</button>
-        </form>
-      </div>
-
-      <!-- Recent Upload Section -->
-      <div class="section" id="recentUploadSection" style="display: none;">
-        <h2>Recently Uploaded Questions</h2>
-        <ul id="recentQuestionList" class="question-list">
-          <!-- List will be populated by JavaScript -->
-        </ul>
-      </div>
-
-      <!-- All Questions Section -->
-      <div class="section">
-        <h2>All Processed Questions & Answers</h2>
-        <ul id="allQuestionList" class="question-list">
-          <!-- List will be populated by JavaScript -->
-        </ul>
-      </div>
+        <button type="submit">Process and Upload</button>
+      </form>
     </div>
 
-    <script>
-      // DOM Elements
-      const uploadForm = document.getElementById("uploadForm");
-      const fileUpload = document.getElementById("fileUpload");
-      const previewSection = document.getElementById("previewSection");
-      const filePreview = document.getElementById("filePreview");
-      const statusMessage = document.getElementById("statusMessage");
-      const recentUploadSection = document.getElementById("recentUploadSection");
-      const recentQuestionList = document.getElementById("recentQuestionList");
-      const allQuestionList = document.getElementById("allQuestionList");
+    <!-- Recent Upload Section -->
+    <div class="section" id="recentUploadSection" style="display: none;">
+      <h2>Recently Uploaded Questions</h2>
+      <div id="recentUploadControls" style="margin-bottom: 15px; display: none;">
+        <button id="deleteRecentButton" style="background-color: #e74c3c;">Delete This Upload</button>
+        <span id="deleteStatus" style="margin-left: 10px;"></span>
+      </div>
+      <ul id="recentQuestionList" class="question-list"></ul>
+    </div>
 
-      // Event listener for file selection
-      fileUpload.addEventListener("change", function (e) {
-        const file = e.target.files[0];
-        if (!file) {
-          previewSection.style.display = "none";
-          return;
-        }
+    <!-- All Questions Section -->
+    <div class="section">
+      <h2>All Processed Questions & Answers</h2>
+      <ul id="allQuestionList" class="question-list">
+        <!-- List will be populated by JavaScript -->
+      </ul>
+    </div>
+  </div>
 
-        // Show preview section
-        previewSection.style.display = "block";
+  <script>
+    // DOM Elements
+    const uploadForm = document.getElementById("uploadForm");
+    const fileUpload = document.getElementById("fileUpload");
+    const previewSection = document.getElementById("previewSection");
+    const filePreview = document.getElementById("filePreview");
+    const statusMessage = document.getElementById("statusMessage");
+    const recentUploadSection = document.getElementById("recentUploadSection");
+    const recentQuestionList = document.getElementById("recentQuestionList");
+    const allQuestionList = document.getElementById("allQuestionList");
+    const deleteRecentButton = document.getElementById("deleteRecentButton");
+    const deleteStatus = document.getElementById("deleteStatus");
+    const recentUploadControls = document.getElementById("recentUploadControls");
 
-        // Read file content
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const content = event.target.result;
-          // Display preview (limited to first 2000 characters to avoid performance issues)
-          filePreview.textContent =
-            content.length > 2000
-              ? content.substring(0, 2000) +
-                "... (content truncated for preview)"
-              : content;
-        };
-        reader.readAsText(file);
-      });
+    let recentUploadMetadata = null;
 
-      // Form submission
-      uploadForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const file = fileUpload.files[0];
-        if (!file) {
-          showStatus("Please select a file to upload.", "error");
-          return;
-        }
-
-        try {
-          showStatus("Uploading and processing file...", "info");
-
-          // Create FormData object to send file
-          const formData = new FormData();
-          formData.append("file", file);
-
-          // Send to your Express.js backend
-          const response = await fetch("/upload", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-          }
-
-          const result = await response.json();
-          console.log("Server response:", result);
-          
-          showStatus(
-            result.message || "File processed successfully!",
-            "success"
-          );
-
-          // Show recent upload section
-          recentUploadSection.style.display = "block";
-          
-          // Display recently uploaded questions
-          if (result.questions && result.questions.length > 0) {
-            renderQuestions(recentQuestionList, result.questions);
-          } else {
-            console.warn("No questions in server response");
-          }
-          
-          // Refresh all questions list
-          await fetchAndRenderAllQuestions();
-        } catch (error) {
-          console.error("Upload error:", error);
-          showStatus(`Error: ${error.message}`, "error");
-        }
-      });
-
-      // Show status message
-      function showStatus(message, type) {
-        statusMessage.textContent = message;
-        statusMessage.className = `status-message ${type}`;
-        statusMessage.style.display = "block";
-
-        // Auto hide after 5 seconds
-        setTimeout(() => {
-          statusMessage.style.display = "none";
-        }, 5000);
+    deleteRecentButton.addEventListener("click", async function () {
+      if (!recentUploadMetadata || !recentUploadMetadata.source) {
+        deleteStatus.textContent = "No recent upload to delete";
+        deleteStatus.style.color = "red";
+        return;
       }
 
-      // Render questions to a specific list element
-      function renderQuestions(listElement, questionsToRender) {
-        listElement.innerHTML = "";
+      if (!confirm(`Are you sure you want to delete this upload (${recentUploadMetadata.count} questions)? This cannot be undone.`)) {
+        return;
+      }
 
-        if (!questionsToRender || questionsToRender.length === 0) {
-          listElement.innerHTML =
-            "<li>No questions found.</li>";
-          return;
-        }
-        
-        questionsToRender.forEach((q) => {
-          // Create list item
-          const li = document.createElement("li");
-          li.className = "question-item";
-          
-          // Handle different possible data formats
-          let questionText, answerText;
-          
-          if (q.question && q.answer) {
-            // If format is { question: "...", answer: "..." }
-            questionText = q.question;
-            answerText = q.answer;
-          } else if (q.content) {
-            // If format is { content: "Question: ...\n\nAnswer: ..." }
-            const parts = q.content.split("\n\n");
-            questionText = parts[0].replace("Question: ", "");
-            answerText = parts[1]?.replace("Answer: ", "") || "No answer provided";
-          } else {
-            // Direct string format (fallback)
-            const fullText = q.toString();
-            const qIndex = fullText.indexOf("Question:");
-            const aIndex = fullText.indexOf("Answer:");
-            
-            if (qIndex !== -1 && aIndex !== -1) {
-              questionText = fullText.substring(qIndex + 9, aIndex).trim();
-              answerText = fullText.substring(aIndex + 7).trim();
-            } else {
-              questionText = "Question format not recognized";
-              answerText = "Answer format not recognized";
-            }
-          }
+      try {
+        deleteStatus.textContent = "Deleting...";
+        deleteStatus.style.color = "inherit";
 
-          // Add question header
-          const header = document.createElement("div");
-          header.className = "question-header";
-          header.textContent = questionText;
-          li.appendChild(header);
-
-          // Add answer
-          const answerDiv = document.createElement("div");
-          answerDiv.className = "question-answer";
-          answerDiv.textContent = answerText;
-          li.appendChild(answerDiv);
-
-          listElement.appendChild(li);
+        const response = await fetch("/delete-upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            source: recentUploadMetadata.source,
+            uploadedAt: recentUploadMetadata.uploadedAt
+          }),
         });
-      }
 
-      // Function to fetch all questions from the server and render them
-      async function fetchAndRenderAllQuestions() {
-        try {
-          const response = await fetch("/questions");
-          
-          if (!response.ok) {
-            throw new Error(`Failed to fetch questions: ${response.status}`);
-          }
-          
-          const result = await response.json();
-          console.log("All questions fetched:", result);
-          
-          if (result.questions) {
-            renderQuestions(allQuestionList, result.questions);
-          } else {
-            console.warn("No questions array in server response");
-            allQuestionList.innerHTML = "<li>No questions found in database.</li>";
-          }
-        } catch (error) {
-          console.error("Error fetching all questions:", error);
-          showStatus(`Error fetching questions: ${error.message}`, "error");
-          allQuestionList.innerHTML = `<li>Error loading questions: ${error.message}</li>`;
+        const result = await response.json();
+
+        if (result.success) {
+          deleteStatus.textContent = `Successfully deleted ${result.deletedCount} questions`;
+          deleteStatus.style.color = "green";
+
+          // Hide the recent upload section
+          recentUploadSection.style.display = "none";
+          recentUploadControls.style.display = "none";
+
+          // Clear the recent upload metadata
+          recentUploadMetadata = null;
+
+          // Refresh all questions
+          await fetchAndRenderAllQuestions();
+        } else {
+          deleteStatus.textContent = result.error || "Failed to delete upload";
+          deleteStatus.style.color = "red";
         }
+      } catch (error) {
+        console.error("Delete error:", error);
+        deleteStatus.textContent = "Error deleting upload";
+        deleteStatus.style.color = "red";
+      }
+    });
+    // Event listener for file selection
+    fileUpload.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (!file) {
+        previewSection.style.display = "none";
+        return;
       }
 
-      // Initial load - fetch all questions when page loads
-      document.addEventListener("DOMContentLoaded", fetchAndRenderAllQuestions);
-    </script>
-  </body>
+      // Show preview section
+      previewSection.style.display = "block";
+
+      // Read file content
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const content = event.target.result;
+        // Display preview (limited to first 2000 characters to avoid performance issues)
+        filePreview.textContent =
+          content.length > 2000
+            ? content.substring(0, 2000) +
+            "... (content truncated for preview)"
+            : content;
+      };
+      reader.readAsText(file);
+    });
+
+    // Form submission
+    // Modify your upload form submission handler to store more metadata
+    uploadForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const file = fileUpload.files[0];
+      if (!file) {
+        showStatus("Please select a file to upload.", "error");
+        return;
+      }
+
+      try {
+        showStatus("Uploading and processing file...", "info");
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Server response:", result);
+
+        showStatus(
+          result.message || "File processed successfully!",
+          "success"
+        );
+
+        // Store the upload metadata for potential deletion
+        recentUploadMetadata = {
+          source: file.name,
+          uploadedAt: new Date().toISOString(),
+          count: result.pairsProcessed || 0
+        };
+
+        // Show recent upload section and controls
+        recentUploadSection.style.display = "block";
+        recentUploadControls.style.display = "block";
+        deleteStatus.textContent = "";
+
+        // Display recently uploaded questions
+        if (result.questions && result.questions.length > 0) {
+          renderQuestions(recentQuestionList, result.questions);
+        }
+
+        // Refresh all questions list
+        await fetchAndRenderAllQuestions();
+      } catch (error) {
+        console.error("Upload error:", error);
+        showStatus(`Error: ${error.message}`, "error");
+      }
+    });
+    // Show status message
+    function showStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message ${type}`;
+      statusMessage.style.display = "block";
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        statusMessage.style.display = "none";
+      }, 5000);
+    }
+
+    // Render questions to a specific list element
+    function renderQuestions(listElement, questionsToRender) {
+      listElement.innerHTML = "";
+
+      if (!questionsToRender || questionsToRender.length === 0) {
+        listElement.innerHTML =
+          "<li>No questions found.</li>";
+        return;
+      }
+
+      questionsToRender.forEach((q) => {
+        // Create list item
+        const li = document.createElement("li");
+        li.className = "question-item";
+
+        // Handle different possible data formats
+        let questionText, answerText;
+
+        if (q.question && q.answer) {
+          // If format is { question: "...", answer: "..." }
+          questionText = q.question;
+          answerText = q.answer;
+        } else if (q.content) {
+          // If format is { content: "Question: ...\n\nAnswer: ..." }
+          const parts = q.content.split("\n\n");
+          questionText = parts[0].replace("Question: ", "");
+          answerText = parts[1]?.replace("Answer: ", "") || "No answer provided";
+        } else {
+          // Direct string format (fallback)
+          const fullText = q.toString();
+          const qIndex = fullText.indexOf("Question:");
+          const aIndex = fullText.indexOf("Answer:");
+
+          if (qIndex !== -1 && aIndex !== -1) {
+            questionText = fullText.substring(qIndex + 9, aIndex).trim();
+            answerText = fullText.substring(aIndex + 7).trim();
+          } else {
+            questionText = "Question format not recognized";
+            answerText = "Answer format not recognized";
+          }
+        }
+
+        // Add question header
+        const header = document.createElement("div");
+        header.className = "question-header";
+        header.textContent = questionText;
+        li.appendChild(header);
+
+        // Add answer
+        const answerDiv = document.createElement("div");
+        answerDiv.className = "question-answer";
+        answerDiv.textContent = answerText;
+        li.appendChild(answerDiv);
+
+        listElement.appendChild(li);
+      });
+    }
+
+    // Function to fetch all questions from the server and render them
+    async function fetchAndRenderAllQuestions() {
+      try {
+        const response = await fetch("/questions");
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch questions: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("All questions fetched:", result);
+
+        if (result.questions) {
+          renderQuestions(allQuestionList, result.questions);
+        } else {
+          console.warn("No questions array in server response");
+          allQuestionList.innerHTML = "<li>No questions found in database.</li>";
+        }
+      } catch (error) {
+        console.error("Error fetching all questions:", error);
+        showStatus(`Error fetching questions: ${error.message}`, "error");
+        allQuestionList.innerHTML = `<li>Error loading questions: ${error.message}</li>`;
+      }
+    }
+
+    // Initial load - fetch all questions when page loads
+    document.addEventListener("DOMContentLoaded", fetchAndRenderAllQuestions);
+  </script>
+</body>
+
 </html>
