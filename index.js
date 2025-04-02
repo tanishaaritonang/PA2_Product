@@ -14,6 +14,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import dotenv from "dotenv";
 
 import fs from "fs/promises";
+import { supabase } from "./db/db.js";
 
 const app = express();
 
@@ -164,13 +165,13 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     // Create documents for each Q&A pair with metadata
     const documents = qaPairs.map((pair, index) => {
       const [question, answer] = pair.split("\n");
-      
+
       // Store processed questions
       processedQuestions.push({
         question: question?.replace(/^Question:\s*/i, "").trim() || "",
-        answer: answer?.replace(/^Answer:\s*/i, "").trim() || ""
+        answer: answer?.replace(/^Answer:\s*/i, "").trim() || "",
       });
-      
+
       return {
         pageContent: `${question}\n${answer}`.trim(),
         metadata: {
@@ -178,7 +179,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
           answer: answer?.trim() || "",
           source: req.file.originalname,
           pairId: index + 1,
-          uploadedAt: new Date().toISOString() // Add timestamp
+          uploadedAt: new Date().toISOString(), // Add timestamp
         },
       };
     });
@@ -224,7 +225,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       success: true,
       message: "File processed successfully",
       pairsProcessed: documents.length,
-      questions: processedQuestions // Return the processed questions
+      questions: processedQuestions, // Return the processed questions
     });
   } catch (error) {
     console.error("Processing error:", error);
@@ -243,7 +244,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-
 // Add this endpoint to your existing server code (index.js)
 app.get("/questions", async (req, res) => {
   try {
@@ -261,112 +261,74 @@ app.get("/questions", async (req, res) => {
     // Note: Adjust the query based on your actual table structure
     const { data, error } = await supabase
       .from("documents")
-      .select("content, metadata")
+      .select("content, metadata, id")
       .order("id", { ascending: false }); // Most recent first
 
     if (error) throw error;
 
     // Format the questions for the frontend
-    const questions = data.map(item => {
+    const questions = data.map((item) => {
       // If you have metadata that contains question and answer
       if (item.metadata && item.metadata.question && item.metadata.answer) {
         return {
+          id: item.id,
           question: item.metadata.question.replace(/^Question:\s*/i, ""),
-          answer: item.metadata.answer.replace(/^Answer:\s*/i, "")
+          answer: item.metadata.answer.replace(/^Answer:\s*/i, ""),
         };
-      } 
+      }
       // Fallback to parsing the content if structured metadata is not available
       else if (item.content) {
         const parts = item.content.split("\n");
         return {
-          question: parts[0]?.replace(/^Question:\s*/i, "") || "Unknown question",
-          answer: parts[1]?.replace(/^Answer:\s*/i, "") || "Unknown answer"
+          id: item.id,
+          question:
+            parts[0]?.replace(/^Question:\s*/i, "") || "Unknown question",
+          answer: parts[1]?.replace(/^Answer:\s*/i, "") || "Unknown answer",
         };
       }
       // Last resort fallback
       return {
         question: "Unable to parse question",
-        answer: "Unable to parse answer"
+        answer: "Unable to parse answer",
       };
     });
 
     res.json({ questions });
-    
   } catch (error) {
     console.error("Error fetching questions:", error);
     res.status(500).json({
       error: "Failed to fetch questions",
-      details: error.message
+      details: error.message,
     });
   }
 });
 
-
 // Add this endpoint to your server
-app.post("/delete-upload", async (req, res) => {
+app.post("/delete-question", async (req, res) => {
   try {
-    const { source, uploadedAt } = req.body;
+    const { questionId } = req.body;
 
-    if (!source) {
-      return res.status(400).json({
-        error: "Source filename is required for deletion"
-      });
+    if (!questionId) {
+      return res.status(400).json({ error: "Question ID is required" });
     }
-
-    // Initialize Supabase client
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-      throw new Error("Missing required Supabase environment variables");
-    }
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
-    );
-
-    // First, get the IDs of records to delete (since Supabase needs exact IDs for deletion)
-    let query = supabase
-      .from("documents")
-      .select("id")
-      .eq("metadata->>source", source);
-
-    if (uploadedAt) {
-      query = query.eq("metadata->>uploadedAt", uploadedAt);
-    }
-
-    const { data: recordsToDelete, error: fetchError } = await query;
-
-    if (fetchError) throw fetchError;
-
-    if (!recordsToDelete || recordsToDelete.length === 0) {
-      return res.json({
-        success: true,
-        message: "No records found to delete",
-        deletedCount: 0
-      });
-    }
-
-    // Extract just the IDs
-    const idsToDelete = recordsToDelete.map(record => record.id);
 
     // Perform the deletion
     const { error: deleteError, count } = await supabase
       .from("documents")
       .delete()
-      .in("id", idsToDelete);
+      .eq("id", questionId);
 
     if (deleteError) throw deleteError;
 
     return res.json({
       success: true,
-      message: `Deleted ${count} records from upload '${source}'`,
-      deletedCount: count
+      message: `Deleted question successfully`,
     });
-
   } catch (error) {
     console.error("Deletion error:", error);
     return res.status(500).json({
       error: "Error deleting upload",
-      details: error.message
+      details: error.message,
     });
   }
 });
