@@ -90,6 +90,13 @@ async function handleUserMessage() {
     
     // Add human message to UI
     addMessageToUI(question, 'human');
+    
+    // Add AI loading message immediately
+    const loadingBubble = document.createElement("div");
+    loadingBubble.classList.add("speech", "speech-ai");
+    loadingBubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    chatbotConversation.appendChild(loadingBubble);
+    chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
 
     try {
         const response = await fetch('http://localhost:3000/chat', {
@@ -109,15 +116,19 @@ async function handleUserMessage() {
 
         const responseData = await response.json();
         
-        // Add AI response to UI
+        // Remove loading message
+        chatbotConversation.removeChild(loadingBubble);
+        
+        // Add AI response to UI with typing animation
         addMessageToUI(responseData, 'ai');
-
         
         // Refresh popular prompts after successful message
         fetchPopularPrompts();
 
     } catch (error) {
         console.error('Error fetching data:', error);
+        // Remove loading message
+        chatbotConversation.removeChild(loadingBubble);
         // Show error message in UI
         addMessageToUI('Sorry, I encountered an error. Please try again.', 'ai', true);
     } finally {
@@ -125,6 +136,10 @@ async function handleUserMessage() {
     }
 }
 
+// Add these functions to your index.js file
+
+// Modified addMessageToUI function with typing animation
+// Modified addMessageToUI function with enhanced typing animation and loading indicator
 function addMessageToUI(message, sender, isError = false) {
     const newSpeechBubble = document.createElement("div");
     newSpeechBubble.classList.add("speech", `speech-${sender}`);
@@ -132,10 +147,49 @@ function addMessageToUI(message, sender, isError = false) {
         newSpeechBubble.classList.add("error");
     }
     chatbotConversation.appendChild(newSpeechBubble);
-    newSpeechBubble.textContent = message;
+    
+    // If it's an AI message, add typing animation
+    if (sender === 'ai') {
+        // Add typing indicator with 3 dots
+        newSpeechBubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        
+        // Wait a bit with the typing indicator visible
+        setTimeout(() => {
+            // Start typing animation
+            typeMessage(message, newSpeechBubble);
+        }, 1500); // Show the dots for 1.5 seconds before starting to type
+    } else {
+        // For human messages, just display immediately
+        newSpeechBubble.textContent = message;
+    }
     
     // Scroll to bottom
     chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
+}
+
+// Function to simulate typing animation
+function typeMessage(message, element) {
+    let i = 0;
+    const typingSpeed = 10; // Milliseconds per character
+    
+    // Clear the typing indicator but keep the element
+    element.innerHTML = '';
+    
+    // Create a typing animation
+    const typingInterval = setInterval(() => {
+        if (i < message.length) {
+            element.textContent += message.charAt(i);
+            i++;
+            
+            // Scroll to bottom with each character
+            chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
+        } else {
+            clearInterval(typingInterval);
+            
+            // Scroll to bottom again when done
+            chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
+        }
+    }, typingSpeed);
 }
 
 // Toggle sidebar function
@@ -149,3 +203,4 @@ document.addEventListener('DOMContentLoaded', () => {
  
     fetchPopularPrompts();
 });
+

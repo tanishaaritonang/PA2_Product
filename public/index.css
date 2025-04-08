@@ -89,7 +89,7 @@ body {
   justify-content: center; 
   align-items: center;
   padding: 5px;
-  background-color: #f8f9fa;
+  background-color: #F5F5F6;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -152,6 +152,7 @@ body {
   max-width: 1200px; /* Match the max-width of app-container */
   margin: 0 auto;
   z-index: 1000;
+  color: #ced4da;
 }
 
 /* Apply correct width calculation when sidebar is present */
@@ -159,6 +160,7 @@ body {
   width: calc(100% - 300px); /* Adjust for sidebar width */
   left: auto;
   right: 0;
+
 }
 
 input {
@@ -170,7 +172,7 @@ input {
 }
 
 #submit-btn {
-  background-color: #007bff;
+  /* background-color: #007bff; */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -179,7 +181,7 @@ input {
 }
 
 #submit-btn:disabled {
-  background-color: #6c757d;
+  background-color:  #b9bfc4;
   cursor: not-allowed;
 }
 
@@ -191,7 +193,7 @@ input {
   height: 70vh;
   padding: 0 10px;
   text-align: center;
-  color: var(--text-color);
+  color: #1A1A4B;
 }
 
 .default-text h1 {
@@ -249,14 +251,16 @@ input {
   flex-wrap: wrap;
   gap: 10px;
   padding: 10px 15px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  /* background-color: #ffffff; */
+  /* border-top: 1px solid #e0e0e0; */
+  justify-content: center;  /* horizontal center */
+  align-items: center; 
 }
 
 .popular-prompt-btn {
-  background-color: #e9ecef;
-  border: 1px solid #ced4da;
-  border-radius: 15px;
+  /* background-color: #EDE7E7; */
+  border: 1px solid #939292;
+  border-radius: 10px;
   padding: 8px 12px;
   font-size: 0.9rem;
   cursor: pointer;
@@ -265,8 +269,50 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
+  color: #716F6F;
 }
 
 .popular-prompt-btn:hover {
   background-color: #dee2e6;
+}
+
+/* Add these styles to your index.css file */
+
+/* Typing animation dots */
+.typing-indicator {
+  display: flex;
+  padding: 6px 12px;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  margin: 0 2px;
+  background-color: #606060;
+  border-radius: 50%;
+  display: inline-block;
+  animation: typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing-bounce {
+  0%, 80%, 100% { 
+      transform: scale(0);
+  } 
+  40% { 
+      transform: scale(1);
+  }
+}
+
+/* Ensure smooth text appearance */
+.speech-ai {
+  word-break: break-word;
+  white-space: pre-wrap;
 }
