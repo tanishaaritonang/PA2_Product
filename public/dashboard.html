@@ -392,27 +392,6 @@
             questionText = q.question;
             answerText = q.answer;
             id = q.id || "No ID provided";
-          } else if (q.content) {
-            // If format is { content: "Question: ...\n\nAnswer: ..." }
-            const parts = q.content.split("\n\n");
-            questionText = parts[0].replace("Question: ", "");
-            answerText =
-              parts[1]?.replace("Answer: ", "") || "No answer provided";
-            id = q.id || "No ID provided";
-          } else {
-            // Direct string format (fallback)
-            const fullText = q.toString();
-            const qIndex = fullText.indexOf("Question:");
-            const aIndex = fullText.indexOf("Answer:");
-
-            if (qIndex !== -1 && aIndex !== -1) {
-              questionText = fullText.substring(qIndex + 9, aIndex).trim();
-              answerText = fullText.substring(aIndex + 7).trim();
-            } else {
-              questionText = "Question format not recognized";
-              answerText = "Answer format not recognized";
-            }
-            id = q.id || "No ID provided";
           }
 
           // Add question header
@@ -478,7 +457,6 @@
           }
 
           const result = await response.json();
-          console.log("All questions fetched:", result);
 
           if (result.questions) {
             renderQuestions(allQuestionList, result.questions);
