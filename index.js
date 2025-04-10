@@ -247,18 +247,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 // Add this endpoint to your existing server code (index.js)
 app.get("/questions", async (req, res) => {
   try {
-    // Initialize Supabase client
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-      throw new Error("Missing required Supabase environment variables");
-    }
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
-    );
-
-    // Fetch questions from the documents table
-    // Note: Adjust the query based on your actual table structure
     const { data, error } = await supabase
       .from("documents")
       .select("content, metadata, id")
@@ -268,28 +256,10 @@ app.get("/questions", async (req, res) => {
 
     // Format the questions for the frontend
     const questions = data.map((item) => {
-      // If you have metadata that contains question and answer
-      if (item.metadata && item.metadata.question && item.metadata.answer) {
-        return {
-          id: item.id,
-          question: item.metadata.question.replace(/^Question:\s*/i, ""),
-          answer: item.metadata.answer.replace(/^Answer:\s*/i, ""),
-        };
-      }
-      // Fallback to parsing the content if structured metadata is not available
-      else if (item.content) {
-        const parts = item.content.split("\n");
-        return {
-          id: item.id,
-          question:
-            parts[0]?.replace(/^Question:\s*/i, "") || "Unknown question",
-          answer: parts[1]?.replace(/^Answer:\s*/i, "") || "Unknown answer",
-        };
-      }
-      // Last resort fallback
       return {
-        question: "Unable to parse question",
-        answer: "Unable to parse answer",
+        id: item.id,
+        question: item.metadata.question.replace(/^Question:\s*/i, ""),
+        answer: item.metadata.answer.replace(/^Answer:\s*/i, ""),
       };
     });
 
