@@ -1,79 +1,51 @@
-import bcrypt from "bcrypt";
-import crypto from "crypto";
 import { supabase } from "../db/db.js";
 
-// Helper function to generate a secure token
-const generateAuthToken = () => {
-  return crypto.randomBytes(32).toString("hex");
-};
-
 const handleLogin = async (req, res) => {
-  const { username, password } = req.body;
+  const { username: email, password } = req.body;
 
-  if (!username || !password) {
+  if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Username and password are required",
+      message: "Email and password are required",
     });
   }
 
   try {
-    // 1. Fetch user from database
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", username)
-      .single();
+    // 1. Use Supabase Auth to sign in
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (error) throw Error("User not found");
-    if (!user) {
+    if (error) {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials",
       });
     }
 
-    // 2. Compare password hashes
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
-    }
+    // 2. Set session in cookie (optional if you're doing client-side auth)
+    const { session, user } = data;
 
-    // 3. Generate a new auth token
-    const authToken = generateAuthToken();
-
-    // 4. Store the token in the database
-    const { error: updateError } = await supabase
-      .from("users")
-      .update({
-        token: authToken,
-      })
-      .eq("id", user.id);
-
-    if (updateError) throw updateError;
-
-    res.cookie("sessionId", authToken, {
-      // Use a proper session token
+    res.cookie("sb:token", session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 3600000, // 1 hour
       sameSite: "strict",
     });
 
-    // 5. Return token to client (can be used in Authorization header)
-    res.json({
+    // 3. Return success response
+    return res.json({
       success: true,
       message: "Login successful",
+      user,
       redirect: "/dashboard",
     });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({
       success: false,
-      message: err.message || "Server error during login",
+      message: "Server error during login",
     });
   }
 };

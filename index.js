@@ -146,7 +146,7 @@ app.get("/popular-prompts", async (req, res) => {
 });
 
 // Update your /upload endpoint to return the processed questions
-app.post("/upload", upload.single("file"), async (req, res) => {
+app.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
   // Validate file exists
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
@@ -173,6 +173,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       });
 
       return {
+        user_id: req.user.id, // Add user ID here (assuming it's available in `req.user`)
         pageContent: `${question}\n${answer}`.trim(),
         metadata: {
           question: question?.trim() || "",
@@ -180,6 +181,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
           source: req.file.originalname,
           pairId: index + 1,
           uploadedAt: new Date().toISOString(), // Add timestamp
+          user_id: req.user.id, // Add user ID here (assuming it's available in `req.user`)
         },
       };
     });
@@ -209,6 +211,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       queryName: "match_documents",
       columns: {
         id: "id",
+        user_id: "user_id", // Store the user_id for RLS checks
         content: "content",
         metadata: "metadata",
         embedding: "embedding",
@@ -282,7 +285,7 @@ app.post("/delete-question", async (req, res) => {
       return res.status(400).json({ error: "Question ID is required" });
     }
 
-    // Perform the deletion
+    // Perform the deletion (RLS will enforce access control)
     const { error: deleteError, count } = await supabase
       .from("documents")
       .delete()
@@ -297,7 +300,7 @@ app.post("/delete-question", async (req, res) => {
   } catch (error) {
     console.error("Deletion error:", error);
     return res.status(500).json({
-      error: "Error deleting upload",
+      error: "Error deleting question",
       details: error.message,
     });
   }
