@@ -17,6 +17,7 @@ const llm = new ChatOpenAI({ openAIApiKey });
 const client = createClient(supabaseUrl, supabaseKey);
 
 export default client;
+const convHistory = new Map(); // Stores conversation history by sessionId
 
 const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert the question to a standalone question.
 
@@ -63,8 +64,6 @@ const chain = RunnableSequence.from([
   },
   answerChain,
 ]);
-
-const convHistory = [];
 
 async function getSimilarPopularPrompts(
   question,
@@ -170,9 +169,16 @@ async function storeUserPrompt(question, embedding) {
 }
 
 // Enhanced conversation processing function
+
 export async function progressConversation(question, sessionId) {
   try {
-    console.log(convHistory);
+    // Initialize conversation history for this session if it doesn't exist
+    if (!convHistory.has(sessionId)) {
+      convHistory.set(sessionId, []);
+    }
+
+    const sessionHistory = convHistory.get(sessionId);
+    console.log(sessionHistory);
     console.log(question);
 
     // First check if this is a question or just a statement
@@ -184,11 +190,15 @@ export async function progressConversation(question, sessionId) {
     // Process the input through AI regardless of whether it's a question
     const response = await chain.invoke({
       question: question,
-      conv_history: formatConvHistory(convHistory),
+      conv_history: formatConvHistory(sessionHistory),
     });
 
-    convHistory.push(question);
-    convHistory.push(response);
+    // Update conversation history for this session
+    sessionHistory.push(question);
+    sessionHistory.push(response);
+    convHistory.set(sessionId, sessionHistory);
+
+    console.log(sessionId, convHistory.get(sessionId));
 
     // Only store in database if it's a question
     if (isQuestion) {
@@ -212,15 +222,10 @@ export async function progressConversation(question, sessionId) {
         const embeddingData = await embeddingResponse.json();
         const embedding = embeddingData.data[0].embedding;
 
-        // console.log("Embedding 1:", embedding);
-
         // Store the current prompt and increment similar prompts
         await Promise.all([
-          // Store the current prompt
-
-          // Increment counts for similar prompts
           getSimilarPopularPrompts(question, true, embedding),
-          await storeUserPrompt(question, embedding),
+          storeUserPrompt(question, embedding),
         ]);
       } catch (error) {
         console.error("Error tracking prompt:", error);
