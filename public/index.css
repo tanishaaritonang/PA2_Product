@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +6,9 @@
   font-family: "Poppins", sans-serif;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -14,7 +16,7 @@
 
 body {
   /* font-family: "Poppins", sans-serif; */
-  background-color: #f0f2f5;
+  /* background-color: #f0f2f5; */
 }
 
 .app-container {
@@ -26,8 +28,8 @@ body {
 
 .sidebar {
   width: 300px;
-  background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
+  /* background-color: #ffffff; */
+  /* border-right: 1px solid #e0e0e0; */
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -79,18 +81,18 @@ body {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #e0e0e0;
+  /* border-left: 1px solid #e0e0e0; */
   position: relative; /* Add this to enable proper positioning of fixed elements */
   height: 100%; /* Ensure it takes full height */
 }
 
 .chatbot-header {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   padding: 5px;
-  background-color: #F5F5F6;
-  border-bottom: 1px solid #e0e0e0;
+  /* background-color: #f5f5f6; */
+  /* border-bottom: 1px solid #e0e0e0; */
 }
 
 .chatbot-header h1 {
@@ -133,7 +135,7 @@ body {
 
 .speech-ai {
   align-self: flex-start;
-  background-color: #f1f0f0;
+  /* background-color: #f1f0f0; */
   color: #333;
   border-bottom-left-radius: 5px;
 }
@@ -142,8 +144,8 @@ body {
 .input-box {
   display: flex;
   padding: 15px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
+  /* background-color: #f8f9fa; */
+  /* border-top: 1px solid #e0e0e0; */
   position: fixed;
   bottom: 0;
   left: 0;
@@ -160,7 +162,6 @@ body {
   width: calc(100% - 300px); /* Adjust for sidebar width */
   left: auto;
   right: 0;
-
 }
 
 input {
@@ -181,7 +182,7 @@ input {
 }
 
 #submit-btn:disabled {
-  background-color:  #b9bfc4;
+  background-color: #b9bfc4;
   cursor: not-allowed;
 }
 
@@ -193,7 +194,7 @@ input {
   height: 70vh;
   padding: 0 10px;
   text-align: center;
-  color: #1A1A4B;
+  color: #1a1a4b;
 }
 
 .default-text h1 {
@@ -220,30 +221,30 @@ input {
 }
 
 #suggested-questions-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
 }
 
 .suggested-question-btn {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 20px;
-    padding: 8px 15px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #333;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
 }
 
 .suggested-question-btn:hover {
-    background-color: #f5f5f5;
-    border-color: #c0c0c0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: #f5f5f5;
+  border-color: #c0c0c0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .popular-prompts-container {
@@ -253,8 +254,8 @@ input {
   padding: 10px 15px;
   /* background-color: #ffffff; */
   /* border-top: 1px solid #e0e0e0; */
-  justify-content: center;  /* horizontal center */
-  align-items: center; 
+  justify-content: center; /* horizontal center */
+  align-items: center;
 }
 
 .popular-prompt-btn {
@@ -269,7 +270,7 @@ input {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
-  color: #716F6F;
+  color: #716f6f;
 }
 
 .popular-prompt-btn:hover {
@@ -303,11 +304,13 @@ input {
 }
 
 @keyframes typing-bounce {
-  0%, 80%, 100% { 
-      transform: scale(0);
-  } 
-  40% { 
-      transform: scale(1);
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
   }
 }
 
