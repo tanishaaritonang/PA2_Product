@@ -159,34 +159,43 @@ app.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     // Read the uploaded file
     const text = await fs.readFile(filePath, "utf-8");
 
-    // First split by double newlines to separate each Q&A pair
-    const qaPairs = text.split("\n\n").filter((pair) => pair.trim());
+    // Normalize line breaks: Replace \r\n (Windows) with \n (Unix)
+    const normalizedText = text.replace(/\r\n/g, "\n");
+
+    // Split by double newlines to separate each Q&A pair
+    const qaPairs = normalizedText.split("\n\n").filter((pair) => pair.trim());
 
     // Create documents for each Q&A pair with metadata
     const documents = qaPairs.map((pair, index) => {
-      const [question, answer] = pair.split("\n");
+      // Split into lines and filter out empty lines
+      const lines = pair.split("\n").filter((line) => line.trim());
+
+      // Assume first line is question, rest are answer (join in case answer has multiple lines)
+      const question = lines[0]?.replace(/^Question:\s*/i, "").trim() || "";
+      const answer =
+        lines
+          .slice(1)
+          .join("\n")
+          ?.replace(/^Answer:\s*/i, "")
+          .trim() || "";
 
       // Store processed questions
-      processedQuestions.push({
-        question: question?.replace(/^Question:\s*/i, "").trim() || "",
-        answer: answer?.replace(/^Answer:\s*/i, "").trim() || "",
-      });
+      processedQuestions.push({ question, answer });
 
       return {
-        user_id: req.user.id, // Add user ID here (assuming it's available in `req.user`)
+        user_id: req.user.id,
         pageContent: `${question}\n${answer}`.trim(),
         metadata: {
-          question: question?.trim() || "",
-          answer: answer?.trim() || "",
+          question,
+          answer,
           source: req.file.originalname,
           pairId: index + 1,
-          uploadedAt: new Date().toISOString(), // Add timestamp
-          user_id: req.user.id, // Add user ID here (assuming it's available in `req.user`)
+          uploadedAt: new Date().toISOString(),
+          user_id: req.user.id,
         },
       };
     });
 
-    // Initialize services with validation
     if (
       !process.env.SUPABASE_URL ||
       !process.env.SUPABASE_KEY ||
