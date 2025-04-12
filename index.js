@@ -76,31 +76,6 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// Optional: Add endpoint to clear chat history
-app.post("/clear-chat", async (req, res) => {
-  try {
-    const { sessionId } = req.body;
-
-    if (!sessionId) {
-      return res.status(400).json({
-        error: "Session ID is required",
-      });
-    }
-
-    // Here you would implement the logic to clear the chat history
-    // This depends on how you're storing the chat history in main.js
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error clearing chat:", error);
-    res.status(500).json({
-      error:
-        req.userLanguage === "id"
-          ? "Gagal menghapus riwayat chat"
-          : "Failed to clear chat history",
-    });
-  }
-});
 
 // Health check endpoint
 app.get("/health", (req, res) => {

@@ -3,15 +3,58 @@ const button = document.getElementById('submit-btn');
 const userInput = document.getElementById('user-input');
 const chatbotConversation = document.getElementById('chatbot-conversation-container');
 const recentChatsContainer = document.getElementById('recent-chats-container');
-const clearChatsBtn = document.getElementById('clear-chats-btn');
 const sidebarToggle = document.getElementById('sidebar-toggle');
-
-
+const clearChatBtn = document.getElementById('clear-chat-btn'); // Get the clear chat button
 
 // Generate a session ID when the page loads
 let sessionId = Date.now().toString();
 
+// Add event listener for the clear chat button
+// clearChatBtn.addEventListener('click', clearChat);
 
+// Function to clear the chat
+function clearChat() {
+    // Generate a new session ID
+    sessionId = Date.now().toString();
+    
+    // Clear the UI
+    chatbotConversation.innerHTML = '';
+    
+    // Add back the default welcome message
+    chatbotConversation.innerHTML = `
+        <div class="default-text">
+            <img
+              src="./img/logo.png"
+              alt="Anaques Logo"
+              style="
+                width: 200px;
+                height: auto;
+                display: block;
+                margin: 10px auto;
+              "
+            />
+            <h2>Hello! I Am Anaques Ready To Help You Explore and Wonder</h2>
+            <p>Ask me anything what's on your mind.</p>
+            <p>Am here to assist you!</p>
+        </div>
+        <div class="popular-prompts-container" id="popular-prompts-container"></div>
+    `;
+    
+    // Refresh popular prompts
+    fetchPopularPrompts();
+    
+    // Also call the backend clear-chat endpoint (optional)
+    fetch('http://localhost:3000/clear-chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sessionId: sessionId })
+    })
+    .catch(error => {
+        console.error('Error clearing chat on server:', error);
+    });
+}
 
 // Function to restore a specific chat
 function restoreChat(chatId) {
@@ -71,9 +114,6 @@ userInput.addEventListener("keypress", (e) => {
         handleUserMessage();
     }
 });
-
-// Clear chats button
-
 
 async function handleUserMessage() {
     const question = userInput.value;
@@ -135,8 +175,6 @@ async function handleUserMessage() {
         button.disabled = false; // Re-enable button
     }
 }
-
-// Add these functions to your index.js file
 
 // Modified addMessageToUI function with typing animation
 // Modified addMessageToUI function with enhanced typing animation and loading indicator
@@ -200,7 +238,11 @@ function toggleSidebar() {
 
 // Load recent chats and popular prompts on page load
 document.addEventListener('DOMContentLoaded', () => {
- 
+    // Get the clear chat button reference after DOM is loaded
+    const clearChatBtn = document.getElementById('clear-chat-btn');
+    if (clearChatBtn) {
+        clearChatBtn.addEventListener('click', clearChat);
+    }
+    
     fetchPopularPrompts();
 });
-

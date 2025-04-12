@@ -46,13 +46,6 @@ body {
   color: #333;
 }
 
-#clear-chats-btn {
-  background-color: #f0f0f0;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
 
 .recent-chats-container {
   flex: 1;
@@ -179,6 +172,11 @@ input {
   padding: 10px 20px;
   border-radius: 20px;
   cursor: pointer;
+}
+
+#submit-btn:hover {
+  background-color: #b9bfc4;
+  border-color: #c0c0c0;
 }
 
 #submit-btn:disabled {
@@ -318,4 +316,25 @@ input {
 .speech-ai {
   word-break: break-word;
   white-space: pre-wrap;
+}
+
+.clear-chat-btn {
+  /* color: white; */
+  margin-right: 5px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  background-color: #f0f0f0; /* Default background color */
+  transition: background-color 0.2s ease; /* Smooth transition for hover effects */
+}
+
+.clear-chat-btn:hover {
+  background-color: #ffb4b4;
+  /* border-color: #000000; */
+}
+
+.clear-chat-btn:active {
+  background-color: #e0e0e0; /* Slightly darker than hover */
+  /* transform: scale(0.98); Optional: slight press effect */
 }
