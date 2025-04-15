@@ -15,6 +15,7 @@ import dotenv from "dotenv";
 
 import fs from "fs/promises";
 import { supabase } from "./db/db.js";
+import handleRegister from "./controller/register.js";
 
 const app = express();
 
@@ -45,6 +46,12 @@ app.get("/dashboard", verifyToken, (req, res) => {
 
 // Login endpoint
 app.post("/login", handleLogin);
+
+app.post("/register", handleRegister);
+
+app.get("/register", (req, res) => {
+  res.sendFile("register.html", { root: "public" });
+});
 
 // Chat endpoint
 app.post("/chat", async (req, res) => {
@@ -235,8 +242,7 @@ app.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
 app.get("/questions", async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from("documents")
-      .select("content, metadata, id")
+      .from("documents")          .select("content, metadata, id")
       .order("id", { ascending: false }); // Most recent first
 
     if (error) throw error;
@@ -289,3 +295,4 @@ app.post("/delete-question", async (req, res) => {
     });
   }
 });
+
