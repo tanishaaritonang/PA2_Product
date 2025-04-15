@@ -3,30 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
     <title>Question and Answer Database - File Upload</title>
     <style>
-         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          font-family: "Poppins", sans-serif;
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
 
-        *, *::before, *::after {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
       body {
         background-color: #f5f5f5;
         color: #333;
         line-height: 1.6;
         padding: 20px;
-              /* font-family: "Poppins", sans-serif; */
-              background-color: #f0f2f5;
+        /* font-family: "Poppins", sans-serif; */
+        background-color: #f0f2f5;
       }
 
       .container {
@@ -205,12 +210,36 @@
         font-size: 14px;
         vertical-align: middle;
       }
+
+      .btn-logout {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .header-dashboard {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #3498db;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 4px 4px 0 0;
+      }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <h1>Question and Answer Database</h1>
+      <div class="header-dashboard">
+        <h1>Question and Answer Database</h1>
+        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+      </div>
 
       <!-- File Upload Form -->
       <div class="section">
@@ -223,11 +252,9 @@
             following format:
           </p>
           <div class="file-format-example">
-            Why is thunder so loud?
-            Thunder is like a big balloon popping; the sound travels far!
-            
-            Why can a ball bounce?
-            Because a ball is like a rabbit that loves to jump!
+            Why is thunder so loud? Thunder is like a big balloon popping; the
+            sound travels far! Why can a ball bounce? Because a ball is like a
+            rabbit that loves to jump!
           </div>
           <p>
             Each Question-Answer pair should be separated by a blank line, as
@@ -302,6 +329,23 @@
 
       const allQuestionList = document.getElementById("allQuestionList");
 
+      const handleLogout = () => {
+        // Perform logout action
+        fetch("/logout", {
+          method: "POST",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Logout failed");
+            }
+            window.location.href = "/login"; // Redirect to login page
+          })
+          .catch((error) => {
+            console.error("Logout error:", error);
+            alert("Error logging out. Please try again.");
+          });
+      };
+
       fileUpload.addEventListener("change", function (e) {
         const file = e.target.files[0];
         if (!file) {
@@ -354,7 +398,7 @@
 
           const result = await response.json();
           console.log("Server response:", result);
-          
+
           showStatus(
             result.message || "File processed successfully!",
             "success"

@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import client, { progressConversation } from "./main.js";
 import handleLogin from "./controller/login.js"; // Import the handleLogin function
-import { verifyToken } from "./middleware/token.js";
+import { checkRole, guestOnly, verifyToken } from "./middleware/token.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
@@ -35,11 +35,11 @@ const detectLanguage = (req, res, next) => {
 app.use(detectLanguage);
 app.use(cookieParser());
 
-app.get("/login", (req, res) => {
+app.get("/login", guestOnly, (req, res) => {
   res.sendFile("login.html", { root: "public" });
 });
 
-app.get("/dashboard", verifyToken, (req, res) => {
+app.get("/dashboard", checkRole("admin"), (req, res) => {
   res.sendFile("dashboard.html", { root: "public" });
 });
 
@@ -76,6 +76,12 @@ app.post("/chat", async (req, res) => {
   }
 });
 
+// add logout endpoint
+app.post("/logout", (req, res) => {
+  res.clearCookie("sb-access-token");
+  res.clearCookie("sb:token");
+  res.redirect("/login");
+});
 
 // Health check endpoint
 app.get("/health", (req, res) => {
