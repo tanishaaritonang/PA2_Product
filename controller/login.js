@@ -27,6 +27,19 @@ const handleLogin = async (req, res) => {
     // 2. Set session in cookie (optional if you're doing client-side auth)
     const { session, user } = data;
 
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      return res.status(500).json({
+        success: false,
+        message: "Error fetching user profile",
+      });
+    }
+
     res.cookie("sb:token", session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -39,7 +52,7 @@ const handleLogin = async (req, res) => {
       success: true,
       message: "Login successful",
       user,
-      redirect: "/dashboard",
+      redirect: profile.role === "admin" ? "/dashboard" : "/",
     });
   } catch (err) {
     console.error("Login error:", err);

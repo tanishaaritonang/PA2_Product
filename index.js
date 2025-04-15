@@ -4,7 +4,12 @@ import express from "express";
 import cors from "cors";
 import client, { progressConversation } from "./main.js";
 import handleLogin from "./controller/login.js"; // Import the handleLogin function
-import { checkRole, guestOnly, verifyToken } from "./middleware/token.js";
+import {
+  checkRole,
+  guestOnly,
+  loggedInOnly,
+  verifyToken,
+} from "./middleware/token.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
@@ -36,6 +41,10 @@ const detectLanguage = (req, res, next) => {
 app.use(detectLanguage);
 app.use(cookieParser());
 
+app.get("/", loggedInOnly, (req, res) => {
+  res.sendFile("home.html", { root: "public" });
+});
+
 app.get("/login", guestOnly, (req, res) => {
   res.sendFile("login.html", { root: "public" });
 });
@@ -49,7 +58,7 @@ app.post("/login", handleLogin);
 
 app.post("/register", handleRegister);
 
-app.get("/register", (req, res) => {
+app.get("/register", guestOnly, (req, res) => {
   res.sendFile("register.html", { root: "public" });
 });
 
@@ -248,7 +257,8 @@ app.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
 app.get("/questions", async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from("documents")          .select("content, metadata, id")
+      .from("documents")
+      .select("content, metadata, id")
       .order("id", { ascending: false }); // Most recent first
 
     if (error) throw error;
@@ -301,4 +311,3 @@ app.post("/delete-question", async (req, res) => {
     });
   }
 });
-
