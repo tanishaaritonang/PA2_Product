@@ -63,7 +63,7 @@ app.get("/register", guestOnly, (req, res) => {
 });
 
 // Chat endpoint
-app.post("/chat", async (req, res) => {
+app.post("/chat", verifyToken, async (req, res) => {
   try {
     const { question, sessionId } = req.body;
 
@@ -77,7 +77,7 @@ app.post("/chat", async (req, res) => {
     console.log("Session ID:", sessionId);
 
     // Pass both question and sessionId to progressConversation
-    const response = await progressConversation(question, sessionId);
+    const response = await progressConversation(question, sessionId, req.user.id);
     console.log("Generated response:", response);
 
     res.json(response);

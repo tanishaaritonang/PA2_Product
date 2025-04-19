@@ -9,6 +9,8 @@ import { retriever } from "./retriever.js";
 import { combineDocuments } from "./combineDocuments.js";
 import { formatConvHistory } from "./formatConvHistory.js";
 import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./db/db.js";
+
 
 const supabaseUrl = "https://uzupsjkvmumjlzofyhxu.supabase.co";
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -170,7 +172,7 @@ async function storeUserPrompt(question, embedding) {
 
 // Enhanced conversation processing function
 
-export async function progressConversation(question, sessionId) {
+export async function progressConversation(question, sessionId, userId) {
   try {
     // Initialize conversation history for this session if it doesn't exist
     if (!convHistory.has(sessionId)) {
@@ -199,6 +201,55 @@ export async function progressConversation(question, sessionId) {
     convHistory.set(sessionId, sessionHistory);
 
     console.log(sessionId, convHistory.get(sessionId));
+    
+    // create session
+    const { data: existingSession, error: sessionError } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('id', sessionId)
+      .single();
+      
+    if (sessionError && !existingSession) {
+      // Create new session in Supabase
+      const { data: newSession, error: createError } = await supabase
+        .from('sessions')
+        .insert([
+          { 
+            id: sessionId,
+            created_at: new Date().toISOString(),
+            user_id: userId,  
+          }
+        ])
+        .select();
+        
+      if (createError) {
+        console.error('Error creating session:', createError);
+      }
+    }
+    
+    // Store messages (question and response) in Supabase
+    const { error: messageError } = await supabase
+      .from('messages')
+      .insert([
+        {
+          session_id: sessionId,
+          message_type: 'question',
+          body: question,
+          created_at: new Date().toISOString()
+        },
+        {
+          session_id: sessionId,
+          message_type: 'response',
+          body: response,
+          created_at: new Date().toISOString()
+        }
+      ]);
+      
+    if (messageError) {
+      console.error('Error storing messages:', messageError);
+    }
+
+    // store messages (question and response )
 
     // Only store in database if it's a question
     if (isQuestion) {
