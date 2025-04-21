@@ -3,14 +3,12 @@ import {createClient} from "@supabase/supabase-js"
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { OpenAIEmbeddings,ChatOpenAI } from "@langchain/openai";
 import { promises as fs } from 'fs';
-
-
 import dotenv from "dotenv";
 dotenv.config()
+
 try {
     const text = await fs.readFile("datasets.text","utf-8")
-
-
+    
     const splitter = new RecursiveCharacterTextSplitter({
         chunkSize:500,
         separators:['\n\n','\n',' ',''],

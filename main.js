@@ -19,6 +19,7 @@ const llm = new ChatOpenAI({ openAIApiKey });
 const client = createClient(supabaseUrl, supabaseKey);
 
 export default client;
+
 const convHistory = new Map(); // Stores conversation history by sessionId
 
 const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert the question to a standalone question.
@@ -32,7 +33,7 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
   standaloneQuestionTemplate
 );
 
-const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is Anaques. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
+const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is TanyaBot. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
 
 Context: {context}
 Conversation History: {conv_history}

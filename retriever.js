@@ -9,11 +9,11 @@ import { OpenAIEmbeddings } from "@langchain/openai";
     
     const embeddings = new OpenAIEmbeddings({openAIApiKey});
       
-      const client = createClient(
+   const client = createClient(
       supabaseUrl,  supabaseKey
       );
 
-     const vectorStore = new SupabaseVectorStore(embeddings,{
+   const vectorStore = new SupabaseVectorStore(embeddings,{
         client,
         tableName:'documents',
         queryName:"match_documents"});
