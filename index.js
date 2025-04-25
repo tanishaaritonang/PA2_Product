@@ -311,3 +311,89 @@ app.post("/delete-question", async (req, res) => {
     });
   }
 });
+
+
+// Add these endpoints to your existing index.js server file
+
+// Endpoint to fetch all chat sessions for the logged-in user
+app.get("/chat-sessions", verifyToken, async (req, res) => {
+  try {
+    // Get user_id from the token verification middleware
+    const userId = req.user.id;
+    
+    // Query sessions table to get all sessions for this user
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("id, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+      
+    if (error) throw error;
+    
+    
+    // For each session, get the first question as preview
+    const sessionsWithPreview = await Promise.all(data.map(async (session) => {
+      const { data: messages, error: msgError } = await supabase
+        .from("messages")
+        .select("body")
+        .eq("session_id", session.id)
+        .eq("message_type", "question")
+        .order("created_at", { ascending: true })
+        .limit(1);
+        
+      if (msgError) throw msgError;
+      
+      return {
+        ...session,
+        preview: messages.length > 0 ? messages[0].body : "Chat session"
+      };
+    }));
+    
+    res.json(sessionsWithPreview);
+  } catch (error) {
+    console.error("Error fetching chat sessions:", error);
+    res.status(500).json({
+      error: "Failed to fetch chat sessions",
+      details: error.message
+    });
+  }
+});
+
+// Endpoint to fetch all messages for a specific session
+app.get("/session-messages/:sessionId", verifyToken, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const userId = req.user.id;
+    
+    // First verify that this session belongs to the user
+    const { data: sessionData, error: sessionError } = await supabase
+      .from("sessions")
+      .select("id")
+      .eq("id", sessionId)
+      .eq("user_id", userId)
+      .single();
+      
+    if (sessionError || !sessionData) {
+      return res.status(403).json({
+        error: "You don't have permission to access this session"
+      });
+    }
+    
+    // Get all messages for this session
+    const { data: messages, error: msgError } = await supabase
+      .from("messages")
+      .select("body, message_type, created_at")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+      
+    if (msgError) throw msgError;
+    
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching session messages:", error);
+    res.status(500).json({
+      error: "Failed to fetch session messages",
+      details: error.message
+    });
+  }
+});

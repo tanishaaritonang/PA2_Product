@@ -12,6 +12,20 @@
   </head>
   <body>
     <div class="app-container">
+      <!-- New Sidebar for Chat History -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>Chat History</h2>
+          <button class="sidebar-toggle" id="sidebar-toggle">
+            <img src="./img/menu.png" width="20px" height="auto" alt="Toggle">
+          </button>
+        </div>
+        <div class="recent-chats-container" id="recent-chats-container">
+          <!-- Chat history items will be dynamically added here -->
+          <div class="loading-history">Loading history...</div>
+        </div>
+      </div>
+
       <div class="chatbot-wrapper">
         <div class="chatbot-header">
           <div class="chatbot-avatar">
@@ -40,10 +54,12 @@
               "
             />
             <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
-            <p>Ask me anything what’s on your mind.</p>
+            <p>Ask me anything what's on your mind.</p>
             <p>I Am here to assist you!</p>
+            <br>
+            <h3>Top Questions, Ready for You! 😱 👇🏼</h3>
           </div>
-
+        
           <div
             class="popular-prompts-container"
             id="popular-prompts-container"

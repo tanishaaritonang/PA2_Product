@@ -21,7 +21,7 @@ const handleRegister = async (req, res) => {
     if (error) {
       return res.status(400).json({
         success: false,
-        message: error.message,
+        message: error,
       });
     }
 

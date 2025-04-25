@@ -15,12 +15,12 @@ import { supabase } from "./db/db.js";
 const supabaseUrl = "https://uzupsjkvmumjlzofyhxu.supabase.co";
 const supabaseKey = process.env.SUPABASE_KEY;
 const openAIApiKey = process.env.OPENAI_API_KEY;
+
 const llm = new ChatOpenAI({ openAIApiKey });
 const client = createClient(supabaseUrl, supabaseKey);
-
 export default client;
-
 const convHistory = new Map(); // Stores conversation history by sessionId
+
 
 const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert the question to a standalone question.
 
@@ -33,6 +33,7 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
   standaloneQuestionTemplate
 );
 
+
 const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is TanyaBot. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
 
 Context: {context}
@@ -42,31 +43,141 @@ Question: {question}
 Answer:`;
 
 const answerPrompt = PromptTemplate.fromTemplate(answerTemplate);
+const answerChain = answerPrompt.pipe(llm).pipe(new StringOutputParser());
 
 const standaloneQuestionChain = standaloneQuestionPrompt
   .pipe(llm)
   .pipe(new StringOutputParser());
 
 const retrieverChain = RunnableSequence.from([
-  (prevResult) => prevResult.standalone_question,
-  retriever,
-  combineDocuments,
-]);
-
-const answerChain = answerPrompt.pipe(llm).pipe(new StringOutputParser());
+    (prevResult) => prevResult.standalone_question,
+    retriever,
+    combineDocuments,
+  ]); //making context
 
 const chain = RunnableSequence.from([
-  {
-    standalone_question: standaloneQuestionChain,
-    original_input: new RunnablePassthrough(),
-  },
-  {
-    context: retrieverChain,
-    question: ({ original_input }) => original_input.question,
-    conv_history: ({ original_input }) => original_input.conv_history,
-  },
-  answerChain,
-]);
+    {
+      standalone_question: standaloneQuestionChain,
+      original_input: new RunnablePassthrough(),
+    },
+    {
+      context: retrieverChain,
+      question: ({ original_input }) => original_input.question,
+      conv_history: ({ original_input }) => original_input.conv_history,
+    },
+    answerChain,
+  ]);
+
+//////
+
+export async function progressConversation(question, sessionId, userId) {
+  try {
+    if (!convHistory.has(sessionId)) {
+      convHistory.set(sessionId, []);
+    }
+    const sessionHistory = convHistory.get(sessionId);
+
+    const response = await chain.invoke({
+      question: question,
+      conv_history: formatConvHistory(sessionHistory),
+    });
+
+    // Update conversation history for this session
+    sessionHistory.push(question);
+    sessionHistory.push(response);
+    convHistory.set(sessionId, sessionHistory);
+
+    // create session
+    const { data: existingSession, error: sessionError } = await supabase
+      .from('sessions')
+      .select('id')
+      .eq('id', sessionId)
+      .single();
+      
+    if (sessionError && !existingSession) {
+      // Create new session in Supabase
+      const { data: newSession, error: createError } = await supabase
+        .from('sessions')
+        .insert([
+          { 
+            id: sessionId,
+            created_at: new Date().toISOString(),
+            user_id: userId,  
+          }
+        ])
+        .select();
+        
+      if (createError) {
+        console.error('Error creating session:', createError);
+      }
+    }
+    
+    // Store messages (question and response) in Supabase
+    const { error: messageError } = await supabase
+      .from('messages')
+      .insert([
+        {
+          session_id: sessionId,
+          message_type: 'question',
+          body: question,
+          created_at: new Date().toISOString()
+        },
+        {
+          session_id: sessionId,
+          message_type: 'response',
+          body: response,
+          created_at: new Date().toISOString()
+        }
+      ]);
+      
+    if (messageError) {
+      console.error('Error storing messages:', messageError);
+    }
+
+    const isQuestion =
+    /^(what|who|when|where|why|how|is|are|can|could|would|will|do|does|did|have|has|may|might)\b/i.test(
+      question
+    ) || question.trim().endsWith("?");
+
+    // Only store in database if it's a question
+    if (isQuestion) {
+      try {
+        // Store the prompt with its embedding
+        const embeddingResponse = await fetch(
+          "https://api.openai.com/v1/embeddings",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${openAIApiKey}`,
+            },
+            body: JSON.stringify({
+              input: question,
+              model: "text-embedding-3-small",
+            }),
+          }
+        );
+
+        const embeddingData = await embeddingResponse.json();
+        const embedding = embeddingData.data[0].embedding;
+
+        Promise.all([
+          getSimilarPopularPrompts(question, true, embedding),
+          storeUserPrompt(question, embedding),
+        ]).catch(error => {
+          console.error("Error in background tasks:", error);
+        });
+      } catch (error) {
+        console.error("Error tracking prompt:", error);
+      }
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error in conversation:", error);
+    return "I'm sorry, I encountered an error. Please try again or contact support.";
+  }
+}
 
 async function getSimilarPopularPrompts(
   question,
@@ -171,122 +282,7 @@ async function storeUserPrompt(question, embedding) {
   }
 }
 
-// Enhanced conversation processing function
 
-export async function progressConversation(question, sessionId, userId) {
-  try {
-    // Initialize conversation history for this session if it doesn't exist
-    if (!convHistory.has(sessionId)) {
-      convHistory.set(sessionId, []);
-    }
 
-    const sessionHistory = convHistory.get(sessionId);
-    console.log(sessionHistory);
-    console.log(question);
 
-    // First check if this is a question or just a statement
-    const isQuestion =
-      /^(what|who|when|where|why|how|is|are|can|could|would|will|do|does|did|have|has|may|might)\b/i.test(
-        question
-      ) || question.trim().endsWith("?");
 
-    // Process the input through AI regardless of whether it's a question
-    const response = await chain.invoke({
-      question: question,
-      conv_history: formatConvHistory(sessionHistory),
-    });
-
-    // Update conversation history for this session
-    sessionHistory.push(question);
-    sessionHistory.push(response);
-    convHistory.set(sessionId, sessionHistory);
-
-    console.log(sessionId, convHistory.get(sessionId));
-    
-    // create session
-    const { data: existingSession, error: sessionError } = await supabase
-      .from('sessions')
-      .select('id')
-      .eq('id', sessionId)
-      .single();
-      
-    if (sessionError && !existingSession) {
-      // Create new session in Supabase
-      const { data: newSession, error: createError } = await supabase
-        .from('sessions')
-        .insert([
-          { 
-            id: sessionId,
-            created_at: new Date().toISOString(),
-            user_id: userId,  
-          }
-        ])
-        .select();
-        
-      if (createError) {
-        console.error('Error creating session:', createError);
-      }
-    }
-    
-    // Store messages (question and response) in Supabase
-    const { error: messageError } = await supabase
-      .from('messages')
-      .insert([
-        {
-          session_id: sessionId,
-          message_type: 'question',
-          body: question,
-          created_at: new Date().toISOString()
-        },
-        {
-          session_id: sessionId,
-          message_type: 'response',
-          body: response,
-          created_at: new Date().toISOString()
-        }
-      ]);
-      
-    if (messageError) {
-      console.error('Error storing messages:', messageError);
-    }
-
-    // store messages (question and response )
-
-    // Only store in database if it's a question
-    if (isQuestion) {
-      try {
-        // Store the prompt with its embedding
-        const embeddingResponse = await fetch(
-          "https://api.openai.com/v1/embeddings",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${openAIApiKey}`,
-            },
-            body: JSON.stringify({
-              input: question,
-              model: "text-embedding-3-small",
-            }),
-          }
-        );
-
-        const embeddingData = await embeddingResponse.json();
-        const embedding = embeddingData.data[0].embedding;
-
-        // Store the current prompt and increment similar prompts
-        await Promise.all([
-          getSimilarPopularPrompts(question, true, embedding),
-          storeUserPrompt(question, embedding),
-        ]);
-      } catch (error) {
-        console.error("Error tracking prompt:", error);
-      }
-    }
-
-    return response;
-  } catch (error) {
-    console.error("Error in conversation:", error);
-    return "I'm sorry, I encountered an error. Please try again or contact support.";
-  }
-}

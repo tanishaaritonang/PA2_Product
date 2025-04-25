@@ -3,19 +3,31 @@ const button = document.getElementById('submit-btn');
 const userInput = document.getElementById('user-input');
 const chatbotConversation = document.getElementById('chatbot-conversation-container');
 const recentChatsContainer = document.getElementById('recent-chats-container');
+const clearChatBtn = document.getElementById('clear-chat-btn');
 const sidebarToggle = document.getElementById('sidebar-toggle');
-const clearChatBtn = document.getElementById('clear-chat-btn'); // Get the clear chat button
 
-// Generate a session ID when the page loads
-let sessionId = Date.now().toString();
+// Generate a session ID when the page loads or get from localStorage
+let sessionId = localStorage.getItem('currentSessionId') || Date.now().toString();
+localStorage.setItem('currentSessionId', sessionId);
+
+// Toggle sidebar visibility
+if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    });
+}
 
 // Add event listener for the clear chat button
-// clearChatBtn.addEventListener('click', clearChat);
+if (clearChatBtn) {
+    clearChatBtn.addEventListener('click', clearChat);
+}
 
 // Function to clear the chat
 function clearChat() {
     // Generate a new session ID
     sessionId = Date.now().toString();
+    localStorage.setItem('currentSessionId', sessionId);
     
     // Clear the UI
     chatbotConversation.innerHTML = '';
@@ -33,48 +45,148 @@ function clearChat() {
                 margin: 10px auto;
               "
             />
-            <h2>Hello! I Am Anaques Ready To Help You Explore and Wonder</h2>
+            <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
             <p>Ask me anything what's on your mind.</p>
-            <p>Am here to assist you!</p>
+            <p>I Am here to assist you!</p>
         </div>
         <div class="popular-prompts-container" id="popular-prompts-container"></div>
     `;
     
     // Refresh popular prompts
     fetchPopularPrompts();
-    
-    // Also call the backend clear-chat endpoint (optional)
-    fetch('http://localhost:3000/clear-chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ sessionId: sessionId })
-    })
-    .catch(error => {
-        console.error('Error clearing chat on server:', error);
+}
+
+// Function to fetch chat sessions
+async function fetchChatSessions() {
+    try {
+        const response = await fetch('/chat-sessions', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const sessions = await response.json();
+        renderChatSessions(sessions);
+    } catch (error) {
+        console.error('Error fetching chat sessions:', error);
+        recentChatsContainer.innerHTML = `
+            <div class="no-history">
+                Unable to load chat history
+            </div>
+        `;
+    }
+}
+
+// Function to format date
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit'
     });
 }
 
-// Function to restore a specific chat
-function restoreChat(chatId) {
-    const recentChats = JSON.parse(localStorage.getItem('recentChats') || '[]');
-    const chat = recentChats.find(c => c.id === parseInt(chatId));
+// Function to render chat sessions in sidebar
+function renderChatSessions(sessions) {
+    recentChatsContainer.innerHTML = '';
     
-    if (chat) {
+    if (sessions.length === 0) {
+        recentChatsContainer.innerHTML = `
+            <div class="no-history">
+                No chat history yet
+            </div>
+        `;
+        return;
+    }
+    
+    sessions.forEach(session => {
+        const sessionElement = document.createElement('div');
+        sessionElement.classList.add('chat-session-item');
+        
+        // Mark the current session as active
+        if (session.id === sessionId) {
+            sessionElement.classList.add('active');
+        }
+        
+        // Get the first question as preview text
+        const previewText = session.preview || 'Chat session';
+        
+        sessionElement.innerHTML = `
+            <div class="chat-session-date">${formatDate(session.created_at)}</div>
+            <div class="chat-session-preview">${previewText}</div>
+        `;
+        
+        // Add click event to load this chat session
+        sessionElement.addEventListener('click', () => loadChatSession(session.id));
+        
+        recentChatsContainer.appendChild(sessionElement);
+    });
+}
+
+// Function to load a specific chat session
+async function loadChatSession(id) {
+    try {
+        // Update active session in UI
+        document.querySelectorAll('.chat-session-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.sessionId === id) {
+                item.classList.add('active');
+            }
+        });
+        
+        // Store the current session ID
+        sessionId = id;
+        localStorage.setItem('currentSessionId', sessionId);
+        
+        // Fetch all messages for this session
+        const response = await fetch(`/session-messages/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const messages = await response.json();
+        
         // Clear current conversation
         chatbotConversation.innerHTML = '';
-  
-        // Add restored messages
-        addMessageToUI(chat.question, 'human');
-        addMessageToUI(chat.response, 'ai');
+        
+        // Remove default text if present
+        const defaultText = chatbotConversation.querySelector('.default-text');
+        if (defaultText) {
+            defaultText.remove();
+        }
+        
+        // Add all messages to the UI
+        messages.forEach(message => {
+            const sender = message.message_type === 'question' ? 'human' : 'ai';
+            addMessageToUI(message.body, sender, false, false); // Don't animate past messages
+        });
+        
+        // Scroll to bottom
+        chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
+        
+    } catch (error) {
+        console.error('Error loading chat session:', error);
+        addMessageToUI('Error loading chat history. Please try again.', 'ai', true, false);
     }
 }
 
 // Fetch popular prompts from the server
 async function fetchPopularPrompts() {
     try {
-        const response = await fetch('http://localhost:3000/popular-prompts');
+        const response = await fetch('/popular-prompts');
         if (!response.ok) {
             throw new Error(`HTTP error ${response.status}`);
         }
@@ -88,6 +200,8 @@ async function fetchPopularPrompts() {
 // Render popular prompts as buttons
 function renderPopularPrompts(prompts) {
     const container = document.getElementById('popular-prompts-container');
+    if (!container) return;
+    
     container.innerHTML = '';
     
     prompts.forEach(prompt => {
@@ -139,7 +253,7 @@ async function handleUserMessage() {
     chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
 
     try {
-        const response = await fetch('http://localhost:3000/chat', {
+        const response = await fetch('/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -162,6 +276,9 @@ async function handleUserMessage() {
         // Add AI response to UI with typing animation
         addMessageToUI(responseData, 'ai');
         
+        // Refresh chat sessions after a message is sent
+        fetchChatSessions();
+        
         // Refresh popular prompts after successful message
         fetchPopularPrompts();
 
@@ -176,9 +293,8 @@ async function handleUserMessage() {
     }
 }
 
-// Modified addMessageToUI function with typing animation
-// Modified addMessageToUI function with enhanced typing animation and loading indicator
-function addMessageToUI(message, sender, isError = false) {
+// Modified addMessageToUI function with typing animation option
+function addMessageToUI(message, sender, isError = false, animate = true) {
     const newSpeechBubble = document.createElement("div");
     newSpeechBubble.classList.add("speech", `speech-${sender}`);
     if (isError) {
@@ -186,8 +302,8 @@ function addMessageToUI(message, sender, isError = false) {
     }
     chatbotConversation.appendChild(newSpeechBubble);
     
-    // If it's an AI message, add typing animation
-    if (sender === 'ai') {
+    // If it's an AI message and we want animation, add typing animation
+    if (sender === 'ai' && animate) {
         // Add typing indicator with 3 dots
         newSpeechBubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
         
@@ -195,9 +311,9 @@ function addMessageToUI(message, sender, isError = false) {
         setTimeout(() => {
             // Start typing animation
             typeMessage(message, newSpeechBubble);
-        }, 1500); // Show the dots for 1.5 seconds before starting to type
+        }, 1000); // Show the dots for 1 second before starting to type
     } else {
-        // For human messages, just display immediately
+        // For human messages or non-animated AI messages, just display immediately
         newSpeechBubble.textContent = message;
     }
     
@@ -230,19 +346,11 @@ function typeMessage(message, element) {
     }, typingSpeed);
 }
 
-// Toggle sidebar function
-function toggleSidebar() {
-    const sidebar = document.querySelector(".sidebar");
-    sidebar.classList.toggle("collapsed");
-}
-
-// Load recent chats and popular prompts on page load
+// Load chat sessions and popular prompts on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Get the clear chat button reference after DOM is loaded
-    const clearChatBtn = document.getElementById('clear-chat-btn');
-    if (clearChatBtn) {
-        clearChatBtn.addEventListener('click', clearChat);
-    }
+    // Fetch chat history for the sidebar
+    fetchChatSessions();
     
+    // Fetch popular prompts
     fetchPopularPrompts();
 });
