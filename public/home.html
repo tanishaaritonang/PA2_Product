@@ -12,6 +12,9 @@
   </head>
   <body>
     <div class="app-container">
+      <!-- User Dropdown -->
+      
+
       <!-- New Sidebar for Chat History -->
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -33,6 +36,19 @@
           </div>
           <h1>TanyaBot</h1>
         </div>
+        <div class="user-dropdown" id="user-dropdown">
+        <button class="user-btn" id="user-btn">
+          <span class="user-icon">You</span>    
+        </button>
+        <div class="dropdown-content" id="dropdown-content">
+          <div class="user-email" id="user-email-full">user@example.com</div>
+          <button class="dropdown-btn" id="logout-btn">
+            <img src="./img/logout.png" alt="Logout">
+            Logout
+          </button>
+  
+        </div>
+      </div>
 
         <div
           class="chatbot-conversation-container"

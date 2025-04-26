@@ -5,10 +5,90 @@ const chatbotConversation = document.getElementById('chatbot-conversation-contai
 const recentChatsContainer = document.getElementById('recent-chats-container');
 const clearChatBtn = document.getElementById('clear-chat-btn');
 const sidebarToggle = document.getElementById('sidebar-toggle');
+const userBtn = document.getElementById('user-btn');
+const dropdownContent = document.getElementById('dropdown-content');
+const logoutBtn = document.getElementById('logout-btn');
+const userEmailShort = document.getElementById('user-email-short');
+const userEmailFull = document.getElementById('user-email-full');
 
 // Generate a session ID when the page loads or get from localStorage
 let sessionId = localStorage.getItem('currentSessionId') || Date.now().toString();
 localStorage.setItem('currentSessionId', sessionId);
+
+// Get user information on page load
+async function fetchUserInfo() {
+    try {
+        const response = await fetch('/user-info', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+        
+        const userData = await response.json();
+        
+        // Update UI with user email
+        if (userData.email) {
+            // Set full email in dropdown
+            userEmailFull.textContent = userData.email;
+            
+            // Set shortened email or username in button
+            // const shortEmail = userData.email.split('@')[0];
+            // userEmailShort.textContent = shortEmail.length > 10 ? shortEmail.substring(0, 10) + '...' : shortEmail;
+            
+            // Set first letter as user icon
+            const userIcon = document.querySelector('.user-icon');
+            if (userIcon) {
+    // Get first two letters and convert to uppercase
+              userIcon.textContent = userData.email.substring(0, 2).toUpperCase();
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+        // Handle error gracefully - perhaps leave as "User"
+    }
+}
+
+// Toggle user dropdown
+if (userBtn) {
+    userBtn.addEventListener('click', () => {
+        dropdownContent.classList.toggle('show');
+    });
+    
+    // Close the dropdown when clicking outside of it
+    window.addEventListener('click', (event) => {
+        if (!event.target.matches('.user-btn') && !event.target.parentNode.matches('.user-btn')) {
+            if (dropdownContent.classList.contains('show')) {
+                dropdownContent.classList.remove('show');
+            }
+        }
+    });
+}
+
+const handleLogout = () => {
+    // Perform logout action
+    fetch("/logout", {
+      method: "POST",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Logout failed");
+        }
+        window.location.href = "/login"; // Redirect to login page
+      })
+      .catch((error) => {
+        console.error("Logout error:", error);
+        alert("Error logging out. Please try again.");
+      });
+  };
+  
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+}
 
 // Toggle sidebar visibility
 if (sidebarToggle) {
@@ -109,6 +189,7 @@ function renderChatSessions(sessions) {
     sessions.forEach(session => {
         const sessionElement = document.createElement('div');
         sessionElement.classList.add('chat-session-item');
+        sessionElement.dataset.sessionId = session.id;
         
         // Mark the current session as active
         if (session.id === sessionId) {
@@ -348,6 +429,9 @@ function typeMessage(message, element) {
 
 // Load chat sessions and popular prompts on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Fetch user info for the dropdown
+    fetchUserInfo();
+    
     // Fetch chat history for the sidebar
     fetchChatSessions();
     

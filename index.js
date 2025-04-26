@@ -397,3 +397,23 @@ app.get("/session-messages/:sessionId", verifyToken, async (req, res) => {
     });
   }
 });
+
+
+// Add this endpoint to your index.js file
+
+// User info endpoint - returns logged in user's email
+app.get("/user-info", verifyToken, async (req, res) => {
+  try {
+    // User data is already available from the verifyToken middleware
+    const user = req.user;
+    
+    res.json({
+      email: user.email
+    });
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    res.status(500).json({
+      error: "Failed to fetch user information"
+    });
+  }
+});
