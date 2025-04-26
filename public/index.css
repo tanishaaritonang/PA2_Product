@@ -14,21 +14,47 @@
   padding: 0;
 }
 
-
 .app-container {
-  display: flex;
   height: 100vh;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+}
+
+.chatbot-wrapper {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  width: auto;
+  position: relative;
+}
+
+.chatbot-wrapper.collapsed {
+  width: calc(100% - 300px);
+  margin-left: 300px; /* Adjust for sidebar width */
 }
 
 .sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 300px;
-  /* background-color: #ffffff; */
-  /* border-right: 1px solid #e0e0e0; */
   padding: 20px;
   display: flex;
   flex-direction: column;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 2s ease;
+}
+
+.sidebar.collapsed {
+  opacity: 1;
+  transition: all 0.3s ease;
+  transform: translateX(0%);
 }
 
 .sidebar-header {
@@ -41,7 +67,6 @@
 .sidebar-header h2 {
   color: #333;
 }
-
 
 .recent-chats-container {
   flex: 1;
@@ -63,16 +88,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.chatbot-wrapper {
-  flex: 1;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  height: 100%;
-  overflow: hidden; /* This will prevent content overflow */
 }
 
 /* Add these styles to your index.css file */
@@ -224,9 +239,9 @@
 /* Apply correct width calculation when sidebar is present */
 /* .sidebar + .chatbot-wrapper .input-box {
   width: calc(100% - 300px); /* Adjust for sidebar width */
-  /* left: auto;
+/* left: auto;
   right: 0;
-} */ 
+} */
 
 input {
   flex: 1;
@@ -275,14 +290,15 @@ input {
 }
 
 .sidebar-toggle {
-  background: transparent;
+  background: rgb(132, 132, 245);
   border: none;
   color: var(--icon-color);
   cursor: pointer;
   width: max-content;
   /* border: 2px solid #14206d; */
   border-radius: 7px;
-  padding: 4px;
+  padding: 7px;
+  margin-top: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -424,7 +440,6 @@ input {
   transition: transform 0.3s ease;
 }
 
-
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -480,9 +495,8 @@ input {
   text-overflow: ellipsis;
 }
 
-
- /* User dropdown styles */
- .user-dropdown {
+/* User dropdown styles */
+.user-dropdown {
   position: absolute;
   top: 15px;
   right: 15px;
@@ -518,7 +532,7 @@ input {
   right: 0;
   background-color: white;
   min-width: 200px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   z-index: 1;
   margin-top: 5px;

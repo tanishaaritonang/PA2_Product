@@ -13,15 +13,11 @@
   <body>
     <div class="app-container">
       <!-- User Dropdown -->
-      
 
       <!-- New Sidebar for Chat History -->
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
           <h2>Chat History</h2>
-          <button class="sidebar-toggle" id="sidebar-toggle">
-            <img src="./img/menu.png" width="20px" height="auto" alt="Toggle">
-          </button>
         </div>
         <div class="recent-chats-container" id="recent-chats-container">
           <!-- Chat history items will be dynamically added here -->
@@ -29,7 +25,20 @@
         </div>
       </div>
 
-      <div class="chatbot-wrapper">
+      <div class="chatbot-wrapper" id="chatbot-wrapper">
+        <button class="sidebar-toggle" id="sidebar-toggle">
+          <svg
+            style="width: 20px; height: 20px"
+            role="img"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>ntfy</title>
+            <path
+              d="M12.597 13.693v2.156h6.205v-2.156ZM5.183 6.549v2.363l3.591 1.901.023.01-.023.009-3.591 1.901v2.35l.386-.211 5.456-2.969V9.729ZM3.659 2.037C1.915 2.037.42 3.41.42 5.154v.002L.438 18.73 0 21.963l5.956-1.583h14.806c1.744 0 3.238-1.374 3.238-3.118V5.154c0-1.744-1.493-3.116-3.237-3.117h-.001zm0 2.2h17.104c.613.001 1.037.447 1.037.917v12.108c0 .47-.424.916-1.038.916H5.633l-3.026.915.031-.179-.017-13.76c0-.47.424-.917 1.038-.917z"
+            />
+          </svg>
+        </button>
         <div class="chatbot-header">
           <div class="chatbot-avatar">
             <!-- <img src="./img/logo.png" alt="AnaQues Avatar" class="avatar-img"> -->
@@ -37,18 +46,17 @@
           <h1>TanyaBot</h1>
         </div>
         <div class="user-dropdown" id="user-dropdown">
-        <button class="user-btn" id="user-btn">
-          <span class="user-icon">You</span>    
-        </button>
-        <div class="dropdown-content" id="dropdown-content">
-          <div class="user-email" id="user-email-full">user@example.com</div>
-          <button class="dropdown-btn" id="logout-btn">
-            <img src="./img/logout.png" alt="Logout">
-            Logout
+          <button class="user-btn" id="user-btn">
+            <span class="user-icon">You</span>
           </button>
-  
+          <div class="dropdown-content" id="dropdown-content">
+            <div class="user-email" id="user-email-full">user@example.com</div>
+            <button class="dropdown-btn" id="logout-btn">
+              <img src="./img/logout.png" alt="Logout" />
+              Logout
+            </button>
+          </div>
         </div>
-      </div>
 
         <div
           class="chatbot-conversation-container"
@@ -72,10 +80,10 @@
             <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
             <p>Ask me anything what's on your mind.</p>
             <p>I Am here to assist you!</p>
-            <br>
+            <br />
             <h3>Top Questions, Ready for You! 😱 👇🏼</h3>
           </div>
-        
+
           <div
             class="popular-prompts-container"
             id="popular-prompts-container"
@@ -83,7 +91,9 @@
         </div>
         <div class="input-box">
           <input id="user-input" placeholder="Ask me anything..." />
-          <button id="clear-chat-btn" class="clear-chat-btn"><img src="./img/trash.png" width="20px" height="auto"></button>
+          <button id="clear-chat-btn" class="clear-chat-btn">
+            <img src="./img/trash.png" width="20px" height="auto" />
+          </button>
 
           <button id="submit-btn" type="submit">
             <img
