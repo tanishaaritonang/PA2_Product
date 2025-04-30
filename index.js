@@ -34,7 +34,7 @@ const upload = multer({ dest: "uploads/" });
 
 // Add language detection middleware
 const detectLanguage = (req, res, next) => {
-  const preferredLanguage = req.headers["accept-language"] || "en"; // Default to Indonesian
+  const preferredLanguage = req.headers["accept-language"] || "id"; // Default to Indonesian
   next();
 };
 

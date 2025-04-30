@@ -7,7 +7,7 @@ const handleRegister = async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Email and password are required",
+      message: "Oops! Email dan Password harus ada...",
     });
   }
 
@@ -21,26 +21,37 @@ const handleRegister = async (req, res) => {
     if (error) {
       return res.status(400).json({
         success: false,
-        message: error,
+        message: error.message || "Registrasi gagal!",
       });
     }
 
     const { session, user } = data;
 
-    // Set cookie if session exists
-    if (session) {
-      res.cookie("sb:token", session.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 3600000, // 1 hour
-        sameSite: "strict",
+    // Check if email confirmation is required
+    // Supabase returns null session when email confirmation is needed
+    if (!session) {
+      return res.status(200).json({
+        success: true,
+        message: "Registrasi berhasil! Silakan periksa email untuk konfirmasi akun Anda.",
+        requiresEmailConfirmation: true,
+        user: {
+          email: user.email,
+        },
       });
     }
+
+    // If session exists (email confirmation not required), set cookie
+    res.cookie("sb:token", session.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600000, // 1 hour
+      sameSite: "strict",
+    });
 
     // Return success response
     return res.status(201).json({
       success: true,
-      message: "Registration successful",
+      message: "Registrasi Berhasil!S",
       user,
     });
   } catch (err) {

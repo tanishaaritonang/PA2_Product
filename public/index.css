@@ -16,8 +16,8 @@
 
 .app-container {
   height: 100vh;
-  max-width: 1200px;
-  margin: 0 auto;
+  /* max-width: 1200px; */
+  /* margin: 0 auto; */
   position: relative;
 }
 
@@ -102,7 +102,9 @@
 
 .chatbot-header h1 {
   font-size: 1.2rem;
-  margin: 0 auto; /* Center the title */
+  margin: 0 auto; 
+  margin-top: 10px;
+  /* Center the title */
 }
 
 /* Profile icon styling */
@@ -290,19 +292,21 @@ input {
 }
 
 .sidebar-toggle {
-  background: rgb(132, 132, 245);
+  background: #58A5F5;
   border: none;
   color: var(--icon-color);
   cursor: pointer;
   width: max-content;
-  /* border: 2px solid #14206d; */
+  position: absolute;
   border-radius: 7px;
   padding: 7px;
-  margin-top: 5px;
+  top: 15px;
+  left: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.3s ease;
+  z-index: 1000;
 }
 
 #suggested-questions-container {
@@ -336,30 +340,26 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 10px 15px;
-  /* background-color: #ffffff; */
-  /* border-top: 1px solid #e0e0e0; */
-  justify-content: center; /* horizontal center */
-  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .popular-prompt-btn {
-  background-color: #c8e6c9;
-  border: 1px solid #939292;
-  border-radius: 10px;
-  padding: 8px 12px;
+  background-color: #f1f3f4;
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+  padding: 8px 15px;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-  color: #716f6f;
+  transition: all 0.3s;
+  color: #333;
 }
 
 .popular-prompt-btn:hover {
-  background-color: #dee2e6;
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
 }
 
 /* Add these styles to your index.css file */
@@ -570,3 +570,4 @@ input {
   width: 16px;
   height: 16px;
 }
+

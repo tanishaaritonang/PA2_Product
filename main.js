@@ -21,8 +21,7 @@ const client = createClient(supabaseUrl, supabaseKey);
 export default client;
 const convHistory = new Map(); // Stores conversation history by sessionId
 
-
-const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert the question to a standalone question.
+const standaloneQuestionTemplate = `Given some conversation history (if any) and a question, convert the question to a standalone question. 
 
 Conversation history: {conv_history}
 Question: {question}
@@ -34,7 +33,10 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
 );
 
 
-const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your names is TanyaBot. If the answer is not available in either, simply respond with, "I'm sorry, I don't know the answer to that. 🤔" and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer
+const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. 
+Your names is TanyaBot. If the answer is not available in either, Try to retrieve the answer from an external source.
+and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer,
+Use indonesian languange to answer, if the question is indonesian languange.
 
 Context: {context}
 Conversation History: {conv_history}
@@ -42,7 +44,9 @@ Question: {question}
 
 Answer:`;
 
+
 const answerPrompt = PromptTemplate.fromTemplate(answerTemplate);
+
 const answerChain = answerPrompt.pipe(llm).pipe(new StringOutputParser());
 
 const standaloneQuestionChain = standaloneQuestionPrompt
@@ -69,7 +73,6 @@ const chain = RunnableSequence.from([
   ]);
 
 //////
-
 export async function progressConversation(question, sessionId, userId) {
   try {
     if (!convHistory.has(sessionId)) {

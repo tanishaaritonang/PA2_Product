@@ -6,7 +6,7 @@ const handleLogin = async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({
       success: false,
-      message: "Email and password are required",
+      message: "Oops! Email dan Passward harus ada...",
     });
   }
 
@@ -20,10 +20,9 @@ const handleLogin = async (req, res) => {
     if (error) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Oops! Sepertinya Password atau email kamu salah!, Coba lagi ya! 🤖",
       });
     }
-
     // 2. Set session in cookie (optional if you're doing client-side auth)
     const { session, user } = data;
 
@@ -48,12 +47,14 @@ const handleLogin = async (req, res) => {
     });
 
     // 3. Return success response
-    return res.json({
+    const response = {
       success: true,
-      message: "Login successful",
-      user,
-      redirect: profile.role === "admin" ? "/dashboard" : "/",
-    });
+      message: "Login Berhasil",
+      user
+    };
+    if (profile.role === "user") response.redirect = "/";
+    return res.json(response);
+
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({
