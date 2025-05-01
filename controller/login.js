@@ -49,10 +49,17 @@ const handleLogin = async (req, res) => {
     // 3. Return success response
     const response = {
       success: true,
-      message: "Login Berhasil",
-      user
+      message: "Login successful", // English message
+      user,
     };
-    if (profile.role === "user") response.redirect = "/";
+    
+    // Role-based redirection
+    if (profile.role === "user") {
+      response.redirect = "/";
+    } else if (profile.role === "admin") {
+      response.redirect = "/dashboard";
+    }
+    
     return res.json(response);
 
   } catch (err) {

@@ -34,7 +34,8 @@ const upload = multer({ dest: "uploads/" });
 
 // Add language detection middleware
 const detectLanguage = (req, res, next) => {
-  const preferredLanguage = req.headers["accept-language"] || "id"; // Default to Indonesian
+  const acceptedLanguage = req.headers["accept-language"];
+  req.language = acceptedLanguage?.startsWith("en") ? "en" : "id"; // Hanya ID atau EN
   next();
 };
 
@@ -291,7 +292,7 @@ app.post("/delete-question", async (req, res) => {
       return res.status(400).json({ error: "Question ID is required" });
     }
 
-    // Perform the deletion (RLS will enforce access control)
+    // Perform the deletion
     const { error: deleteError, count } = await supabase
       .from("documents")
       .delete()
@@ -306,7 +307,7 @@ app.post("/delete-question", async (req, res) => {
   } catch (error) {
     console.error("Deletion error:", error);
     return res.status(500).json({
-      error: "Error deleting question",
+      error: "Error deleting upload",
       details: error.message,
     });
   }

@@ -4,8 +4,9 @@ const fileUpload = document.getElementById("fileUpload");
 const previewSection = document.getElementById("previewSection");
 const filePreview = document.getElementById("filePreview");
 const statusMessage = document.getElementById("statusMessage");
-
 const allQuestionList = document.getElementById("allQuestionList");
+const logoutBtn = document.getElementById("logoutBtn");
+
 
 const handleLogout = () => {
   // Perform logout action
@@ -23,6 +24,7 @@ const handleLogout = () => {
       alert("Error logging out. Please try again.");
     });
 };
+document.getElementById('logoutBtn').addEventListener('click', handleLogout);
 
 fileUpload.addEventListener("change", function (e) {
   const file = e.target.files[0];
