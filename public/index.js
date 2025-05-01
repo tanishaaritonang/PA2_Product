@@ -21,9 +21,7 @@ sidebarToggle.addEventListener("click", () => {
 });
 
 // Generate a session ID when the page loads or get from localStorage
-let sessionId =
-  localStorage.getItem("currentSessionId") || Date.now().toString();
-localStorage.setItem("currentSessionId", sessionId);
+let sessionId;
 
 // Get user information on page load
 async function fetchUserInfo() {
@@ -91,6 +89,8 @@ const handleLogout = () => {
       if (!response.ok) {
         throw new Error("Logout failed");
       }
+      // clear session ID from localStorage
+      localStorage.removeItem("currentSessionId");
       window.location.href = "/login"; // Redirect to login page
     })
     .catch((error) => {
@@ -157,6 +157,7 @@ async function fetchChatSessions() {
 
     const sessions = await response.json();
     renderChatSessions(sessions);
+    renderCurrentSession();
   } catch (error) {
     console.error("Error fetching chat sessions:", error);
     recentChatsContainer.innerHTML = `
@@ -165,6 +166,13 @@ async function fetchChatSessions() {
             </div>
         `;
   }
+}
+
+function renderCurrentSession() {
+  // get the current session ID from localStorage
+  const currentSessionId = localStorage.getItem("currentSessionId");
+  if (!currentSessionId) return;
+  loadChatSession(currentSessionId);
 }
 
 // Function to format date
@@ -344,6 +352,9 @@ async function handleUserMessage() {
     '<div class="typing-indicator"><span></span><span></span><span></span></div>';
   chatbotConversation.appendChild(loadingBubble);
   chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
+
+  sessionId = localStorage.getItem("currentSessionId") || Date.now().toString();
+  localStorage.setItem("currentSessionId", sessionId);
 
   try {
     const response = await fetch("/chat", {
