@@ -5,7 +5,6 @@ const previewSection = document.getElementById("previewSection");
 const filePreview = document.getElementById("filePreview");
 const statusMessage = document.getElementById("statusMessage");
 const allQuestionList = document.getElementById("allQuestionList");
-const logoutBtn = document.getElementById("logoutBtn");
 
 
 const handleLogout = () => {
@@ -24,7 +23,7 @@ const handleLogout = () => {
       alert("Error logging out. Please try again.");
     });
 };
-document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
 
 fileUpload.addEventListener("change", function (e) {
   const file = e.target.files[0];
@@ -164,7 +163,6 @@ function renderQuestions(listElement, questionsToRender) {
     // Add action cell with delete button
     const actionCell = document.createElement("td");
     actionCell.className = "action-cell";
-    
     const deleteButton = document.createElement("button");
     deleteButton.innerHTML = '<img src="/img/icons8-delete-trash-64.png" alt="Delete" style="width:auto; height:20px;">';
     deleteButton.onclick = function () {
