@@ -246,7 +246,7 @@ async function initUserActivityChart() {
       userActivityChart.destroy();
     }
 
-    userActivityChart = new Chart(ctx, {
+    window.userActivityChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -254,27 +254,42 @@ async function initUserActivityChart() {
           {
             label: 'Chat Sessions',
             data: sessionsCount,
+            backgroundColor: 'rgba(52, 152, 219, 0.7)',
             borderColor: '#3498db',
-            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-            tension: 0.4,
-            fill: true
+            borderWidth: 1
           },
           {
             label: 'Messages',
             data: messagesCount,
+            backgroundColor: 'rgba(46, 204, 113, 0.7)',
             borderColor: '#2ecc71',
-            backgroundColor: 'rgba(46, 204, 113, 0.1)',
-            tension: 0.4,
-            fill: true
+            borderWidth: 1
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+        },
         plugins: {
           legend: {
             position: 'top',
+          },
+          tooltip: {
+            enabled: true,
+            position: 'nearest',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            bodyFont: {
+              size: 14
+            },
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.raw}`;
+              }
+            }
           }
         },
         scales: {
@@ -310,40 +325,6 @@ function displayChartError(chartId, message) {
   chartContainer.innerHTML = message;
 }
 
-// Initialize and render Message Distribution Chart
-function initMessageDistributionChart() {
-  const ctx = document.getElementById('messageDistributionChart').getContext('2d');
-  
-  messageDistributionChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['User Questions', 'Bot Responses', 'System Messages'],
-      datasets: [{
-        data: [35, 35, 30],
-        backgroundColor: [
-          '#3498db',
-          '#2ecc71',
-          '#f1c40f'
-        ],
-        borderColor: [
-          '#2980b9',
-          '#27ae60',
-          '#f39c12'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        }
-      }
-    }
-  });
-}
 
 // When the document is fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
@@ -361,7 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Initialize charts
   initUserActivityChart();
-  initMessageDistributionChart();
+
 });
 
 // Add a function to fetch Supabase stats directly if the API endpoints don't exist yet
