@@ -363,16 +363,7 @@ body {
   font-weight: bold;
 }
 
-.admin-dropdown {
-  position: relative;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
 
-.admin-dropdown i {
-  margin-left: 6px;
-}
 
 .content-area {
   padding: 20px;
@@ -861,3 +852,5 @@ button:hover {
     width: 100% !important;
     height: 250px !important;
   }
+
+  

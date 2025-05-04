@@ -128,18 +128,16 @@ app.get("/popular-prompts", async (req, res) => {
   try {
     const { data, error } = await client
       .from("user_prompts")
-      .select("prompt")
+      .select("prompt, count")
       .order("count", { ascending: false })
-      .limit(3);
+      .limit(5);
 
     if (error) throw error;
 
-    res.json(data.map((item) => item.prompt));
+    res.json(data); // Returns [{ prompt: "...", count: X }, ...]
   } catch (error) {
     console.error("Error fetching popular prompts:", error);
-    res.status(500).json({
-      error: "Failed to fetch popular prompts",
-    });
+    res.status(500).json({ error: "Failed to fetch popular prompts" });
   }
 });
 
@@ -427,14 +425,11 @@ app.get("/user-info", verifyToken, async (req, res) => {
 app.post("/api/supabase-stats", verifyToken, checkRole("admin"), async (req, res) => {
   try {
     const { table, count, query } = req.body;
-    
     if (!table) {
       return res.status(400).json({
         error: "Table name is required"
       });
     }
-    
-    // Simple count query
     if (count) {
       const { data, error, count: totalCount } = await supabase
         .from(table)
@@ -444,10 +439,6 @@ app.post("/api/supabase-stats", verifyToken, checkRole("admin"), async (req, res
       
       return res.json({ count: totalCount });
     }
-    
-    // Custom query logic could be added here
-    // Example: if (query === 'last7days') { ... }
-    
     return res.status(400).json({
       error: "Invalid query parameters"
     });

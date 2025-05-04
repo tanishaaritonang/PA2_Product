@@ -1,0 +1,100 @@
+/* Additional styles specific to analytics page */
+.top-prompts-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .top-prompts-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .top-prompts-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .prompt-text {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 15px;
+  }
+  
+  .prompt-count {
+    font-weight: bold;
+    color: #2173d1;
+  }
+  
+  /* Enhanced table styles for analytics */
+  #top-prompts-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  #top-prompts-table th {
+    background-color: #f2f5f9;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #334155;
+  }
+  
+  #top-prompts-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  #top-prompts-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  #top-prompts-table tr:hover {
+    background-color: #f9fafc;
+  }
+  
+  /* Legend styling for charts */
+  .chart-legend {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    font-size: 14px;
+  }
+  
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border-radius: 2px;
+  }
+  
+  /* Download report button */
+  .download-report {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-bottom: 20px;
+  }
+  
+  .download-report i {
+    margin-right: 8px;
+  }
+  
+  .download-report:hover {
+    background-color: #27ae60;
+  }

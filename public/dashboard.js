@@ -5,45 +5,11 @@ const totalMessagesElement = document.getElementById('total-messages');
 const totalQAEntriesElement = document.getElementById('total-qa-entries');
 const recentSessionsBody = document.getElementById('recent-sessions-body');
 const adminEmailElement = document.getElementById('admin-email');
-const logoutBtn = document.getElementById('logout-btn');
 
 // Charts
 let userActivityChart;
 let messageDistributionChart;
 
-// Handle logout
-logoutBtn.addEventListener('click', () => {
-  fetch('/logout', {
-    method: 'POST',
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-      window.location.href = '/login'; // Redirect to login page
-    })
-    .catch(error => {
-      console.error('Logout error:', error);
-      alert('Error logging out. Please try again.');
-    });
-});
-
-// Fetch admin user info
-async function fetchUserInfo() {
-  try {
-    const response = await fetch('/user-info');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user info: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    if (data.email) {
-      adminEmailElement.textContent = data.email;
-    }
-  } catch (error) {
-    console.error('Error fetching user info:', error);
-  }
-}
 
 // Fetch total users count
 async function fetchTotalUsers() {
@@ -328,8 +294,6 @@ function displayChartError(chartId, message) {
 
 // When the document is fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
-  // Fetch user info
-  await fetchUserInfo();
   
   // Fetch stats
   fetchTotalUsers();
