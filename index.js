@@ -34,6 +34,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import ejs from "ejs";
 import fs from "fs/promises";
+import expressEjsLayouts from "express-ejs-layouts";
 const app = express();
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -45,7 +46,8 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", path.join(dirname, "views"));
-
+app.use(expressEjsLayouts);
+app.set("layout", "layout");
 app.use(cors()); // Add CORS middleware to handle cross-origin requests
 
 // Add language detection middleware
