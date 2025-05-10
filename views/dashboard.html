@@ -1,0 +1,56 @@
+<% layout('layout/main') -%>
+
+<div class="content-area">
+  <!-- Dashboard Stats Cards -->
+  <div class="metrics-container">
+    <div class="metric-card">
+      <div class="metric-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="metric-details">
+        <h3>Total Users</h3>
+        <div class="metric-value" id="total-users">Loading...</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">
+        <i class="fas fa-comments"></i>
+      </div>
+      <div class="metric-details">
+        <h3>Total Chat Sessions</h3>
+        <div class="metric-value" id="total-sessions">Loading...</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">
+        <i class="fas fa-comment-dots"></i>
+      </div>
+      <div class="metric-details">
+        <h3>Total Messages</h3>
+        <div class="metric-value" id="total-messages">Loading...</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="metric-details">
+        <h3>Total Q&A Entries</h3>
+        <div class="metric-value" id="total-qa-entries">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-container">
+    <div class="chart-card">
+      <h3>User Activity (Last 7 Days)</h3>
+      <canvas id="userActivityChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="../public/js/dashboard.js"></script>
