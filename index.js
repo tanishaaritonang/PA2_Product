@@ -32,9 +32,6 @@ import {
 } from "./controller/auth.js";
 import path from "path";
 import { fileURLToPath } from "url";
-import ejs from "ejs";
-import fs from "fs/promises";
-import expressEjsLayouts from "express-ejs-layouts";
 const app = express();
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -46,8 +43,6 @@ app.use(express.json());
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", path.join(dirname, "views"));
-app.use(expressEjsLayouts);
-app.set("layout", "layout");
 app.use(cors()); // Add CORS middleware to handle cross-origin requests
 
 // Add language detection middleware
@@ -59,7 +54,6 @@ const detectLanguage = (req, res, next) => {
 
 app.use(detectLanguage);
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
 
 app.get("/", loggedInOnly, async (req, res) => {
   res.render("home");
@@ -71,6 +65,14 @@ app.get("/login", guestOnly, async (req, res) => {
 
 app.get("/dashboard", checkRole("admin"), (req, res) => {
   res.render("dashboard", { title: "Dashboard" });
+});
+
+app.get("/database", checkRole("admin"), (req, res) => {
+  res.render("database", { title: "database" });
+});
+
+app.get("/analytics", checkRole("admin"), (req, res) => {
+  res.render("analytics", { title: "analytics" });
 });
 
 app.post("/login", handleLogin);
