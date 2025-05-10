@@ -5,6 +5,10 @@ const previewSection = document.getElementById("previewSection");
 const filePreview = document.getElementById("filePreview");
 const statusMessage = document.getElementById("statusMessage");
 const allQuestionList = document.getElementById("allQuestionList");
+const userIconContainer = document.getElementById('userIconContainer');
+const userDropdown = document.getElementById('userDropdown');
+const userEmailFull = document.getElementById('userEmailFull');
+const logoutButton = document.getElementById('logoutButton');
 
 
 const handleLogout = () => {
@@ -231,6 +235,70 @@ async function fetchAndRenderAllQuestions() {
     allQuestionList.innerHTML = `<tr><td colspan='3'>Error loading questions: ${error.message}</td></tr>`;
   }
 }
+userIconContainer.addEventListener('click', () => {
+    userDropdown.classList.toggle('active');
+});
 
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    if (!userIconContainer.contains(event.target) && !userDropdown.contains(event.target)) {
+        userDropdown.classList.remove('active');
+    }
+});
+logoutButton.addEventListener('click', async () => {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Redirect to login page
+            window.location.href = '/login';
+        } else {
+            console.error('Logout failed');
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+});
+
+async function fetchUserInfo() {
+  try {
+    const response = await fetch("/user-info", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const userData = await response.json();
+
+    // Update UI with user email
+    if (userData.email) {
+      // Set full email in dropdown
+      userEmailFull.textContent = userData.email;
+
+      // Set first two letters as user icon
+      const userIcon = document.querySelector(".user-icon");
+      if (userIcon) {
+        // Get first two letters and convert to uppercase
+        userIcon.textContent = userData.email.substring(0, 2).toUpperCase();
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    // Handle error gracefully - perhaps leave as default "--"
+  }
+}
 // Initial load - fetch all questions when page loads
-document.addEventListener("DOMContentLoaded", fetchAndRenderAllQuestions);
+document.addEventListener("DOMContentLoaded", function() {
+    fetchAndRenderAllQuestions();
+    fetchUserInfo();
+});
