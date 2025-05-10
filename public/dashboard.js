@@ -1,238 +1,330 @@
 // DOM Elements
-const uploadForm = document.getElementById("uploadForm");
-const fileUpload = document.getElementById("fileUpload");
-const previewSection = document.getElementById("previewSection");
-const filePreview = document.getElementById("filePreview");
-const statusMessage = document.getElementById("statusMessage");
-const allQuestionList = document.getElementById("allQuestionList");
-const logoutBtn = document.getElementById("logoutBtn");
+const totalUsersElement = document.getElementById('total-users');
+const totalSessionsElement = document.getElementById('total-sessions');
+const totalMessagesElement = document.getElementById('total-messages');
+const totalQAEntriesElement = document.getElementById('total-qa-entries');
+const recentSessionsBody = document.getElementById('recent-sessions-body');
+const adminEmailElement = document.getElementById('admin-email');
+
+// Charts
+let userActivityChart;
+let messageDistributionChart;
 
 
-const handleLogout = () => {
-  // Perform logout action
-  fetch("/logout", {
-    method: "POST",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-      window.location.href = "/login"; // Redirect to login page
-    })
-    .catch((error) => {
-      console.error("Logout error:", error);
-      alert("Error logging out. Please try again.");
-    });
-};
-document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-
-fileUpload.addEventListener("change", function (e) {
-  const file = e.target.files[0];
-  if (!file) {
-    previewSection.style.display = "none";
-    return;
-  }
-
-  // Show preview section
-  previewSection.style.display = "block";
-
-  // Read file content
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const content = event.target.result;
-    // Display preview (limited to first 2000 characters to avoid performance issues)
-    filePreview.textContent =
-      content.length > 2000
-        ? content.substring(0, 2000) + "... (content truncated for preview)"
-        : content;
-  };
-  reader.readAsText(file);
-});
-
-// Form submission
-// Modify your upload form submission handler to store more metadata
-uploadForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  const file = fileUpload.files[0];
-  if (!file) {
-    showStatus("Please select a file to upload.", "error");
-    return;
-  }
-
+// Fetch total users count
+async function fetchTotalUsers() {
   try {
-    showStatus("Uploading and processing file...", "info");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch("/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log("Server response:", result);
-
-    showStatus(
-      result.message || "File processed successfully!",
-      "success"
-    );
-
-    // Refresh all questions list
-    await fetchAndRenderAllQuestions();
-  } catch (error) {
-    console.error("Upload error:", error);
-    showStatus(`Error: ${error.message}`, "error");
-  }
-});
-// Show status message
-function showStatus(message, type) {
-  statusMessage.textContent = message;
-  statusMessage.className = `status-message ${type}`;
-  statusMessage.style.display = "block";
-
-  // Auto hide after 5 seconds
-  setTimeout(() => {
-    statusMessage.style.display = "none";
-  }, 5000);
-}
-
-// Render questions to a specific list element
-function renderQuestions(listElement, questionsToRender) {
-  listElement.innerHTML = "";
-
-  if (!questionsToRender || questionsToRender.length === 0) {
-    listElement.innerHTML = "<tr><td colspan='3'>No questions found.</td></tr>";
-    return;
-  }
-  
-  // Create table element
-  const table = document.createElement("table");
-  table.className = "questions-table";
-  
-  // Create table header
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  const questionHeader = document.createElement("th");
-  questionHeader.textContent = "Question";
-  const answerHeader = document.createElement("th");
-  answerHeader.textContent = "Answer";
-  const actionHeader = document.createElement("th");
-  actionHeader.textContent = "Action";
-  
-  headerRow.appendChild(questionHeader);
-  headerRow.appendChild(answerHeader);
-  headerRow.appendChild(actionHeader);
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-  
-  // Create table body
-  const tbody = document.createElement("tbody");
-  
-  questionsToRender.forEach((q) => {
-    // Handle different possible data formats
-    let questionText, answerText, id;
-
-    if (q.question && q.answer) {
-      // If format is { question: "...", answer: "..." }
-      questionText = q.question;
-      answerText = q.answer;
-      id = q.id || "No ID provided";
-    }
-
-    // Create table row
-    const row = document.createElement("tr");
-    row.className = "question-row";
-
-    // Add question cell
-    const questionCell = document.createElement("td");
-    questionCell.className = "question-cell";
-    questionCell.textContent = questionText;
-    row.appendChild(questionCell);
-
-    // Add answer cell
-    const answerCell = document.createElement("td");
-    answerCell.className = "answer-cell";
-    answerCell.textContent = answerText;
-    row.appendChild(answerCell);
-
-    // Add action cell with delete button
-    const actionCell = document.createElement("td");
-    actionCell.className = "action-cell";
+    const response = await fetch('/api/stats/users');
     
-    const deleteButton = document.createElement("button");
-    deleteButton.innerHTML = '<img src="/img/icons8-delete-trash-64.png" alt="Delete" style="width:auto; height:20px;">';
-    deleteButton.onclick = function () {
-      // Handle delete action
-      if (confirm("Are you sure you want to delete this question?")) {
-        fetch(`/delete-question`, {
-          method: "POST",
-          body: JSON.stringify({ questionId: id }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                `Failed to delete question: ${response.status}`
-              );
-            }
-            return response.json();
-          })
-          .then((result) => {
-            console.log("Delete response:", result);
-            alert("Question deleted successfully!");
-            fetchAndRenderAllQuestions(); // Refresh the list after deletion
-          })
-          .catch((error) => {
-            console.error("Delete error:", error);
-            showStatus(
-              `Error deleting question: ${error.message}`,
-              "error"
-            );
-          });
-      }
-    };
-    actionCell.appendChild(deleteButton);
-    row.appendChild(actionCell);
-
-    tbody.appendChild(row);
-  });
-  
-  table.appendChild(tbody);
-  listElement.appendChild(table);
-}
-
-// Function to fetch all questions from the server and render them
-async function fetchAndRenderAllQuestions() {
-  try {
-    const response = await fetch("/questions");
-
     if (!response.ok) {
-      throw new Error(`Failed to fetch questions: ${response.status}`);
+      // If API endpoint doesn't exist yet, we'll use a fetch from Supabase directly
+      // This demonstrates querying through the server, which should be implemented
+      const { data, error } = await fetch('/api/supabase-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          table: 'profiles',
+          count: true
+        })
+      }).then(res => res.json());
+      
+      if (error) throw new Error(error.message);
+      
+      // Update UI with count
+      totalUsersElement.textContent = data || '0';
+      return;
     }
-
-    const result = await response.json();
-
-    if (result.questions) {
-      renderQuestions(allQuestionList, result.questions);
-    } else {
-      console.warn("No questions array in server response");
-      allQuestionList.innerHTML =
-        "<tr><td colspan='3'>No questions found in database.</td></tr>";
-    }
+    
+    const data = await response.json();
+    totalUsersElement.textContent = data.count || '0';
   } catch (error) {
-    console.error("Error fetching all questions:", error);
-    showStatus(`Error fetching questions: ${error.message}`, "error");
-    allQuestionList.innerHTML = `<tr><td colspan='3'>Error loading questions: ${error.message}</td></tr>`;
+    console.error('Error fetching total users:', error);
+    totalUsersElement.textContent = 'Error';
   }
 }
 
-// Initial load - fetch all questions when page loads
-document.addEventListener("DOMContentLoaded", fetchAndRenderAllQuestions);
+// Fetch total chat sessions
+async function fetchTotalSessions() {
+  try {
+    const response = await fetch('/api/stats/sessions');
+    
+    if (!response.ok) {
+      // If API endpoint doesn't exist yet, fetch directly
+      const { data, error } = await fetch('/api/supabase-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          table: 'sessions',
+          count: true
+        })
+      }).then(res => res.json());
+      
+      if (error) throw new Error(error.message);
+      
+      // Update UI
+      totalSessionsElement.textContent = data || '0';
+      return;
+    }
+    
+    const data = await response.json();
+    totalSessionsElement.textContent = data.count || '0';
+  } catch (error) {
+    console.error('Error fetching total sessions:', error);
+    totalSessionsElement.textContent = 'Error';
+  }
+}
+
+// Fetch total messages count
+async function fetchTotalMessages() {
+  try {
+    const response = await fetch('/api/stats/messages');
+    
+    if (!response.ok) {
+      // If API endpoint doesn't exist yet
+      const { data, error } = await fetch('/api/supabase-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          table: 'messages',
+          count: true
+        })
+      }).then(res => res.json());
+      
+      if (error) throw new Error(error.message);
+      
+      // Update UI
+      totalMessagesElement.textContent = data || '0';
+      return;
+    }
+    
+    const data = await response.json();
+    totalMessagesElement.textContent = data.count || '0';
+  } catch (error) {
+    console.error('Error fetching total messages:', error);
+    totalMessagesElement.textContent = 'Error';
+  }
+}
+
+// Fetch total Q&A entries
+async function fetchTotalQAEntries() {
+  try {
+    const response = await fetch('/api/stats/qa-entries');
+    
+    if (!response.ok) {
+      // If API endpoint doesn't exist yet
+      const { data, error } = await fetch('/api/supabase-stats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          table: 'documents',
+          count: true
+        })
+      }).then(res => res.json());
+      
+      if (error) throw new Error(error.message);
+      
+      // Update UI
+      totalQAEntriesElement.textContent = data || '0';
+      return;
+    }
+    
+    const data = await response.json();
+    totalQAEntriesElement.textContent = data.count || '0';
+  } catch (error) {
+    console.error('Error fetching total Q&A entries:', error);
+    totalQAEntriesElement.textContent = 'Error';
+  }
+}
+
+// Fetch recent chat sessions
+async function fetchRecentSessions() {
+  try {
+    const response = await fetch('/chat-sessions');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch recent sessions: ${response.status}`);
+    }
+    
+    const sessions = await response.json();
+    
+    if (sessions.length === 0) {
+      recentSessionsBody.innerHTML = '<tr><td colspan="4">No recent sessions found</td></tr>';
+      return;
+    }
+    
+    // Clear the table
+    recentSessionsBody.innerHTML = '';
+    
+    // Add up to 10 recent sessions
+    sessions.slice(0, 10).forEach(session => {
+      const row = document.createElement('tr');
+      
+      // Format date
+      const createdAt = new Date(session.created_at);
+      const formattedDate = createdAt.toLocaleDateString() + ' ' + 
+                           createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      row.innerHTML = `
+        <td>${session.id.substring(0, 8)}...</td>
+        <td>User ${session.user_id ? session.user_id.substring(0, 8) : 'Unknown'}</td>
+        <td>${session.preview || 'No message'}</td>
+        <td>${formattedDate}</td>
+      `;
+      
+      recentSessionsBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error('Error fetching recent sessions:', error);
+    recentSessionsBody.innerHTML = `<tr><td colspan="4">Error loading sessions: ${error.message}</td></tr>`;
+  }
+}
+
+// Initialize and render User Activity Chart
+async function initUserActivityChart() {
+  const ctx = document.getElementById('userActivityChart').getContext('2d');
+  let userActivityChart;
+  
+  try {
+    // 1. Generate labels for the last 7 days
+    const labels = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+
+    // 2. Fetch all data from a single endpoint
+    const response = await fetch('/api/activity-data');
+    if (!response.ok) throw new Error('Failed to fetch activity data');
+    
+    const { sessionsCount, messagesCount } = await response.json();
+
+    // 3. Create/update chart
+    if (userActivityChart) {
+      userActivityChart.destroy();
+    }
+
+    window.userActivityChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Chat Sessions',
+            data: sessionsCount,
+            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+            borderColor: '#3498db',
+            borderWidth: 1
+          },
+          {
+            label: 'Messages',
+            data: messagesCount,
+            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+            borderColor: '#2ecc71',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            enabled: true,
+            position: 'nearest',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            bodyFont: {
+              size: 14
+            },
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.raw}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              drawBorder: false
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Chart initialization failed:', error);
+    displayChartError('userActivityChart', 'Failed to load chart data');
+  }
+}
+
+// Helper function for error display
+function displayChartError(chartId, message) {
+  const chartContainer = document.getElementById(chartId).parentElement;
+  chartContainer.style.display = 'flex';
+  chartContainer.style.alignItems = 'center';
+  chartContainer.style.justifyContent = 'center';
+  chartContainer.style.color = 'red';
+  chartContainer.style.fontWeight = 'bold';
+  chartContainer.innerHTML = message;
+}
+
+
+// When the document is fully loaded
+document.addEventListener('DOMContentLoaded', async () => {
+  
+  // Fetch stats
+  fetchTotalUsers();
+  fetchTotalSessions();
+  fetchTotalMessages();
+  fetchTotalQAEntries();
+  
+  // Fetch recent sessions
+  fetchRecentSessions();
+  
+  // Initialize charts
+  initUserActivityChart();
+
+});
+
+// Add a function to fetch Supabase stats directly if the API endpoints don't exist yet
+// This would need a corresponding server endpoint
+async function fetchStats() {
+  try {
+    // Fetch all stats in parallel
+    await Promise.all([
+      fetchTotalUsers(),
+      fetchTotalSessions(),
+      fetchTotalMessages(),
+      fetchTotalQAEntries(),
+      fetchRecentSessions()
+    ]);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  }
+}
+
+// Refresh stats every 60 seconds
+setInterval(fetchStats, 60000);

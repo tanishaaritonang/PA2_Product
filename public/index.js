@@ -287,10 +287,11 @@ async function loadChatSession(id) {
 async function fetchPopularPrompts() {
   try {
     const response = await fetch("/popular-prompts");
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}`);
-    }
-    const prompts = await response.json();
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    
+    const data = await response.json();
+    const prompts = data.map(item => item.prompt); // Extract only prompts
+    
     renderPopularPrompts(prompts);
   } catch (error) {
     console.error("Error fetching popular prompts:", error);

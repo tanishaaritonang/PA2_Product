@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>Admin Dashboard - TanyaBot</title>
+    <title>Analytics & Reports - TanyaBot</title>
 </head>
 <body>
     <div class="sidebar">
@@ -18,7 +18,7 @@
             </a>
         </div>
         <div class="menu-items">
-            <a href="dashboard.html" class="menu-item active">
+            <a href="dashboard.html" class="menu-item">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
@@ -26,7 +26,7 @@
                 <i class="fas fa-database"></i>
                 <span>Database Management</span>
             </a>
-            <a href="analytics.html" class="menu-item">
+            <a href="analytics.html" class="menu-item active">
                 <i class="fas fa-chart-line"></i>
                 <span>Analytics & Reports</span>
             </a>
@@ -35,53 +35,32 @@
 
     <div class="main-content">
         <div class="top-bar">
-            <div class="page-title">Admin Dashboard</div>
-            <div>
-                
+            <div class="page-title">Analytics & Reports</div>
+            <div class="admin-dropdown">
+                <button id="logout-btn" class="btn-logout">Logout</button>
             </div>
         </div>
 
         <div class="content-area">
-            <!-- Dashboard Stats Cards -->
+            <!-- Analytics overview -->
             <div class="metrics-container">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="metric-details">
-                        <h3>Total Users</h3>
-                        <div class="metric-value" id="total-users">Loading...</div>
-
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="metric-details">
-                        <h3>Total Chat Sessions</h3>
-                        <div class="metric-value" id="total-sessions">Loading...</div>
-                    </div>
-                </div>
-
                 <div class="metric-card">
                     <div class="metric-icon">
                         <i class="fas fa-comment-dots"></i>
                     </div>
                     <div class="metric-details">
-                        <h3>Total Messages</h3>
-                        <div class="metric-value" id="total-messages">Loading...</div>
+                        <h3>Total Prompts Used</h3>
+                        <div class="metric-value" id="total-prompts">Loading...</div>
                     </div>
                 </div>
 
                 <div class="metric-card">
                     <div class="metric-icon">
-                        <i class="fas fa-file-alt"></i>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="metric-details">
-                        <h3>Total Q&A Entries</h3>
-                        <div class="metric-value" id="total-qa-entries">Loading...</div>
+                        <h3>Avg. Prompts Per User</h3>
+                        <div class="metric-value" id="avg-prompts">Loading...</div>
                     </div>
                 </div>
             </div>
@@ -89,15 +68,14 @@
             <!-- Charts Section -->
             <div class="charts-container">
                 <div class="chart-card">
-                    <h3>User Activity (Last 7 Days)</h3>
-                    <canvas id="userActivityChart"></canvas>
+                    <h3>Popular Prompts</h3>
+                    <canvas id="popularPromptsChart"></canvas>
                 </div>
             </div>
 
-    
         </div>
     </div>
 
-    <script type="module"  src="./dashboard.js"></script>
+    <script type="module" src="./analytics.js"></script>
 </body>
 </html>
