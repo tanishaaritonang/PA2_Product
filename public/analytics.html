@@ -13,7 +13,8 @@
     <div class="sidebar">
         <div class="logo-container">
             <a href="dashboard.html" class="logo">
-                <i class="fas fa-robot"></i>
+                <!-- <i class="fas fa-robot"></i> -->
+                 <i><img src="./img/logo.png" width="40px" height="auto"></i>
                 <span>TanyaBot</span>
             </a>
         </div>
@@ -34,10 +35,19 @@
     </div>
 
     <div class="main-content">
-        <div class="top-bar">
-            <div class="page-title">Analytics & Reports</div>
-            <div class="admin-dropdown">
-                <button id="logout-btn" class="btn-logout">Logout</button>
+       <div class="top-bar">
+            <div class="page-title">Analytics</div>
+            <div class="user-profile">
+                <div class="user-icon-container" id="userIconContainer">
+                    <div class="user-icon">--</div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-email" id="userEmailFull">user@example.com</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-logout" id="logoutButton">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
             </div>
         </div>
 

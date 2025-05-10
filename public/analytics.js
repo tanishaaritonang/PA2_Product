@@ -6,6 +6,10 @@ const successRateElement = document.getElementById('success-rate');
 const topPromptsBody = document.getElementById('top-prompts-body');
 const adminEmailElement = document.getElementById('admin-email');
 const logoutBtn = document.getElementById('logout-btn');
+const userIconContainer = document.getElementById('userIconContainer');
+const userDropdown = document.getElementById('userDropdown');
+const userEmailFull = document.getElementById('userEmailFull');
+const logoutButton = document.getElementById('logoutButton');
 
 // Charts
 let popularPromptsChart;
@@ -192,9 +196,75 @@ function displayChartError(chartId, message) {
   chartContainer.innerHTML = message;
 }
 
+
+userIconContainer.addEventListener('click', () => {
+    userDropdown.classList.toggle('active');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    if (!userIconContainer.contains(event.target) && !userDropdown.contains(event.target)) {
+        userDropdown.classList.remove('active');
+    }
+});
+logoutButton.addEventListener('click', async () => {
+    try {
+        const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Redirect to login page
+            window.location.href = '/login';
+        } else {
+            console.error('Logout failed');
+        }
+    } catch (error) {
+        console.error('Error during logout:', error);
+    }
+});
+
+async function fetchUserInfo() {
+  try {
+    const response = await fetch("/user-info", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const userData = await response.json();
+
+    // Update UI with user email
+    if (userData.email) {
+      // Set full email in dropdown
+      userEmailFull.textContent = userData.email;
+
+      // Set first two letters as user icon
+      const userIcon = document.querySelector(".user-icon");
+      if (userIcon) {
+        // Get first two letters and convert to uppercase
+        userIcon.textContent = userData.email.substring(0, 2).toUpperCase();
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    // Handle error gracefully - perhaps leave as default "--"
+  }
+}
+
+
 // When the document is fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
   
+  fetchUserInfo();
   // Fetch stats
   await fetchTotalPrompts();
   await fetchAvgPrompts();
