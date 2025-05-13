@@ -9,7 +9,6 @@ const handleLogin = async (req, res) => {
       message: "Oops! Email dan Passward harus ada...",
     });
   }
-
   try {
     // 1. Use Supabase Auth to sign in
     const { data, error } = await supabase.auth.signInWithPassword({

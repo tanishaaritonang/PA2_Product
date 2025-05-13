@@ -207,6 +207,7 @@ document.addEventListener('click', (event) => {
         userDropdown.classList.remove('active');
     }
 });
+
 logoutButton.addEventListener('click', async () => {
     try {
         const response = await fetch('/logout', {
