@@ -90,7 +90,12 @@ const handleLogout = () => {
         throw new Error("Logout failed");
       }
       // clear session ID from localStorage
-      localStorage.removeItem("currentSessionId");
+      sessionId = null;
+      // remove session ID from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("sessionId");
+      window.history.pushState({}, "", url);
+
       window.location.href = "/login"; // Redirect to login page
     })
     .catch((error) => {
