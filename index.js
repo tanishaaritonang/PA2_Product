@@ -101,7 +101,18 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server berjalan pada port ${PORT}`);
-});
+// Start server only in development
+if (process.env.NODE_ENV === "development") {
+  const PORT = process.env.PORT || 3001; // Changed port
+  app.listen(PORT, () => {
+    console.log(`Server berjalan pada port ${PORT}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} sudah digunakan`);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+}
+
+export default app;
