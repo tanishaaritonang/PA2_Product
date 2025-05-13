@@ -8,13 +8,13 @@ const handleUpload = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
     }
-
-    let filePath = req.file.path;
-    let processedQuestions = []; // Store processed questions to return them
+    
+    // Initialize the processedQuestions array
+    let processedQuestions = [];
 
     try {
-        // Read the uploaded file
-        const text = await fs.readFile(filePath, "utf-8");
+        // Read the uploaded file from buffer instead of path
+        const text = req.file.buffer.toString('utf-8');
 
         // Normalize line breaks: Replace \r\n (Windows) with \n (Unix)
         const normalizedText = text.replace(/\r\n/g, "\n");
@@ -65,7 +65,6 @@ const handleUpload = async (req, res) => {
             openAIApiKey: process.env.OPENAI_API_KEY,
         });
 
-
         // Store vectors with custom schema
         await SupabaseVectorStore.fromDocuments(documents, embeddings, {
             client: supabase,
@@ -83,9 +82,6 @@ const handleUpload = async (req, res) => {
             },
         });
 
-        // Clean up the uploaded file
-        await fs.unlink(filePath);
-
         return res.json({
             success: true,
             message: "File processed successfully",
@@ -95,19 +91,12 @@ const handleUpload = async (req, res) => {
     } catch (error) {
         console.error("Processing error:", error);
 
-        // Attempt to clean up file even if error occurs
-        try {
-            if (filePath) await fs.unlink(filePath);
-        } catch (cleanupError) {
-            console.error("File cleanup failed:", cleanupError);
-        }
-
         return res.status(500).json({
             error: "Error processing file",
             details: error.message,
         });
     }
-}
+};
 
 const handleQuestion = async (req, res) => {
     try {
