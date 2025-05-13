@@ -10,13 +10,32 @@ import {
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import dotenv from "dotenv";
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { handleChat, handleChatSession, handleHistorySession } from "./controller/chat.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import {
+  handleChat,
+  handleChatSession,
+  handleHistorySession,
+} from "./controller/chat.js";
 import { handlePopularPrompts } from "./controller/popularPrompts.js";
-import { handleDeleteQuestion, handleQuestion, handleUpload } from "./controller/question.js";
-import { handleActivityStat, handleMessagesStat, handleQAStat, handleSessionStat, handleSupabaseStats, handleUserStats } from "./controller/stats.js";
-import { handleLogin, handleRegister, handleUserInfo } from "./controller/auth.js";
+import {
+  handleDeleteQuestion,
+  handleQuestion,
+  handleUpload,
+} from "./controller/question.js";
+import {
+  handleActivityStat,
+  handleMessagesStat,
+  handleQAStat,
+  handleSessionStat,
+  handleSupabaseStats,
+  handleUserStats,
+} from "./controller/stats.js";
+import {
+  handleLogin,
+  handleRegister,
+  handleUserInfo,
+} from "./controller/auth.js";
 
 const app = express();
 dotenv.config();
@@ -25,9 +44,10 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Add language detection middleware
 const detectLanguage = (req, res, next) => {
@@ -40,23 +60,23 @@ app.use(detectLanguage);
 app.use(cookieParser());
 
 app.get("/", loggedInOnly, (req, res) => {
-  res.sendFile('home.html', {root:"public"}) 
+  res.sendFile("home.html", { root: "public" });
 });
 
 app.get("/login", guestOnly, (req, res) => {
-  res.sendFile('login.html', { root: "public" });
+  res.sendFile("login.html", { root: "public" });
 });
 
 app.get("/dashboard", checkRole("admin"), (req, res) => {
-  res.sendFile('dashboard.html', { root: "public" });
+  res.sendFile("dashboard.html", { root: "public" });
 });
 
 app.get("/analytics", checkRole("admin"), (req, res) => {
-  res.sendFile('analytics.html', { root: "public" });
+  res.sendFile("analytics.html", { root: "public" });
 });
 
 app.get("/register", guestOnly, (req, res) => {
-  res.sendFile('register.html', { root: "public" });
+  res.sendFile("register.html", { root: "public" });
 });
 
 app.post("/logout", (req, res) => {
@@ -75,14 +95,27 @@ app.post("/delete-question", handleDeleteQuestion);
 app.get("/chat-sessions", verifyToken, handleChatSession);
 app.get("/session-messages/:sessionId", verifyToken, handleHistorySession);
 app.get("/user-info", verifyToken, handleUserInfo);
-app.post("/api/supabase-stats", verifyToken, checkRole("admin"), handleSupabaseStats);
+app.post(
+  "/api/supabase-stats",
+  verifyToken,
+  checkRole("admin"),
+  handleSupabaseStats
+);
 app.get("/api/stats/users", verifyToken, checkRole("admin"), handleUserStats);
-app.get("/api/stats/sessions", verifyToken, checkRole("admin"), handleSessionStat);
-app.get("/api/stats/messages", verifyToken, checkRole("admin"), handleMessagesStat);
+app.get(
+  "/api/stats/sessions",
+  verifyToken,
+  checkRole("admin"),
+  handleSessionStat
+);
+app.get(
+  "/api/stats/messages",
+  verifyToken,
+  checkRole("admin"),
+  handleMessagesStat
+);
 app.get("/api/stats/qa-entries", verifyToken, checkRole("admin"), handleQAStat);
-app.get('/api/activity-data', handleActivityStat);
-
-
+app.get("/api/activity-data", handleActivityStat);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -104,15 +137,17 @@ app.use((err, req, res, next) => {
 // Start server only in development
 if (process.env.NODE_ENV === "development") {
   const PORT = process.env.PORT || 3001; // Changed port
-  app.listen(PORT, () => {
-    console.log(`Server berjalan pada port ${PORT}`);
-  }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} sudah digunakan`);
-    } else {
-      console.error('Server error:', err);
-    }
-  });
+  app
+    .listen(PORT, () => {
+      console.log(`Server berjalan pada port ${PORT}`);
+    })
+    .on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        console.error(`Port ${PORT} sudah digunakan`);
+      } else {
+        console.error("Server error:", err);
+      }
+    });
 }
 
 export default app;
