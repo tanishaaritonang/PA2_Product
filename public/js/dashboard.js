@@ -5,14 +5,75 @@ const totalMessagesElement = document.getElementById('total-messages');
 const totalQAEntriesElement = document.getElementById('total-qa-entries');
 const recentSessionsBody = document.getElementById('recent-sessions-body');
 const adminEmailElement = document.getElementById('admin-email');
-const userIconContainer = document.getElementById('userIconContainer');
+const logoutBtn = document.getElementById('logout-btn');
 const userDropdown = document.getElementById('userDropdown');
 const userEmailFull = document.getElementById('userEmailFull');
-const logoutButton = document.getElementById('logoutButton');
 
 // Charts
 let userActivityChart;
 let messageDistributionChart;
+
+// Handle logout
+logoutBtn.addEventListener('click', () => {
+  fetch('/logout', {
+    method: 'POST',
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      window.location.href = '/login'; // Redirect to login page
+    })
+    .catch(error => {
+      console.error('Logout error:', error);
+      alert('Error logging out. Please try again.');
+    });
+});
+
+userIconContainer.addEventListener('click', () => {
+    userDropdown.classList.toggle('active');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (event) => {
+    if (!userIconContainer.contains(event.target) && !userDropdown.contains(event.target)) {
+        userDropdown.classList.remove('active');
+    }
+});
+
+// Fetch admin user info
+async function fetchUserInfo() {
+  try {
+    const response = await fetch("/user-info", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const userData = await response.json();
+
+    // Update UI with user email
+    if (userData.email) {
+      // Set full email in dropdown
+      userEmailFull.textContent = userData.email;
+
+      // Set first two letters as user icon
+      const userIcon = document.querySelector(".user-icon");
+      if (userIcon) {
+        // Get first two letters and convert to uppercase
+        userIcon.textContent = userData.email.substring(0, 2).toUpperCase();
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    // Handle error gracefully - perhaps leave as default "--"
+  }
+}
 
 
 // Fetch total users count
@@ -216,7 +277,7 @@ async function initUserActivityChart() {
       userActivityChart.destroy();
     }
 
-    window.userActivityChart = new Chart(ctx, {
+    userActivityChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -224,42 +285,27 @@ async function initUserActivityChart() {
           {
             label: 'Chat Sessions',
             data: sessionsCount,
-            backgroundColor: 'rgba(52, 152, 219, 0.7)',
             borderColor: '#3498db',
-            borderWidth: 1
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            tension: 0.4,
+            fill: true
           },
           {
             label: 'Messages',
             data: messagesCount,
-            backgroundColor: 'rgba(46, 204, 113, 0.7)',
             borderColor: '#2ecc71',
-            borderWidth: 1
+            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+            tension: 0.4,
+            fill: true
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-          intersect: false,
-        },
         plugins: {
           legend: {
             position: 'top',
-          },
-          tooltip: {
-            enabled: true,
-            position: 'nearest',
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            bodyFont: {
-              size: 14
-            },
-            displayColors: true,
-            callbacks: {
-              label: function(context) {
-                return `${context.dataset.label}: ${context.raw}`;
-              }
-            }
           }
         },
         scales: {
@@ -295,75 +341,47 @@ function displayChartError(chartId, message) {
   chartContainer.innerHTML = message;
 }
 
-
-userIconContainer.addEventListener('click', () => {
-    userDropdown.classList.toggle('active');
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (event) => {
-    if (!userIconContainer.contains(event.target) && !userDropdown.contains(event.target)) {
-        userDropdown.classList.remove('active');
-    }
-});
-logoutButton.addEventListener('click', async () => {
-    try {
-        const response = await fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            // Redirect to login page
-            window.location.href = '/login';
-        } else {
-            console.error('Logout failed');
+// Initialize and render Message Distribution Chart
+function initMessageDistributionChart() {
+  const ctx = document.getElementById('messageDistributionChart').getContext('2d');
+  
+  messageDistributionChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['User Questions', 'Bot Responses', 'System Messages'],
+      datasets: [{
+        data: [35, 35, 30],
+        backgroundColor: [
+          '#3498db',
+          '#2ecc71',
+          '#f1c40f'
+        ],
+        borderColor: [
+          '#2980b9',
+          '#27ae60',
+          '#f39c12'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
         }
-    } catch (error) {
-        console.error('Error during logout:', error);
-    }
-});
-
-async function fetchUserInfo() {
-  try {
-    const response = await fetch("/user-info", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error ${response.status}`);
-    }
-
-    const userData = await response.json();
-
-    // Update UI with user email
-    if (userData.email) {
-      // Set full email in dropdown
-      userEmailFull.textContent = userData.email;
-
-      // Set first two letters as user icon
-      const userIcon = document.querySelector(".user-icon");
-      if (userIcon) {
-        // Get first two letters and convert to uppercase
-        userIcon.textContent = userData.email.substring(0, 2).toUpperCase();
       }
     }
-  } catch (error) {
-    console.error("Error fetching user info:", error);
-    // Handle error gracefully - perhaps leave as default "--"
-  }
+  });
 }
 
 // When the document is fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
+  // Fetch user info
+  await fetchUserInfo();
   
   // Fetch stats
-  fetchUserInfo();
   fetchTotalUsers();
   fetchTotalSessions();
   fetchTotalMessages();
@@ -374,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Initialize charts
   initUserActivityChart();
-
+  initMessageDistributionChart();
 });
 
 // Add a function to fetch Supabase stats directly if the API endpoints don't exist yet
@@ -396,4 +414,3 @@ async function fetchStats() {
 
 // Refresh stats every 60 seconds
 setInterval(fetchStats, 60000);
-

@@ -1,4 +1,3 @@
-// server
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -11,27 +10,23 @@ import {
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import dotenv from "dotenv";
-import { handleChat, handleChatSession } from "./controller/chat.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { handleChat, handleChatSession, handleHistorySession } from "./controller/chat.js";
 import { handlePopularPrompts } from "./controller/popularPrompts.js";
 import { handleDeleteQuestion, handleQuestion, handleUpload } from "./controller/question.js";
 import { handleActivityStat, handleMessagesStat, handleQAStat, handleSessionStat, handleSupabaseStats, handleUserStats } from "./controller/stats.js";
-import { handleUserInfo } from "./controller/auth.js";
-import path from "path";
-import { fileURLToPath } from "url";
+import { handleLogin, handleRegister, handleUserInfo } from "./controller/auth.js";
 
 const app = express();
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
-
 dotenv.config();
 
-// Middleware
+// const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 app.use(express.json());
 app.use(express.static("public"));
-app.set('view engine', 'html');
-app.set('views', path.join(dirname, 'views'));
-
-app.use(cors()); // Add CORS middleware to handle cross-origin requests
+app.use(cors());
 const upload = multer({ dest: "uploads/" });
 
 // Add language detection middleware
@@ -45,25 +40,40 @@ app.use(detectLanguage);
 app.use(cookieParser());
 
 app.get("/", loggedInOnly, (req, res) => {
-  res.render("home");
+  res.sendFile('home.html', {root:"public"}) 
 });
 
-
 app.get("/login", guestOnly, (req, res) => {
-  res.render("login");
+  res.sendFile('login.html', { root: "public" });
 });
 
 app.get("/dashboard", checkRole("admin"), (req, res) => {
-  res.render("dashboard");
+  res.sendFile('dashboard.html', { root: "public" });
 });
 
+app.get("/analytics", checkRole("admin"), (req, res) => {
+  res.sendFile('analytics.html', { root: "public" });
+});
+
+app.get("/register", guestOnly, (req, res) => {
+  res.sendFile('register.html', { root: "public" });
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("sb-access-token");
+  res.clearCookie("sb:token");
+  res.redirect("/login");
+});
+
+app.post("/login", handleLogin);
+app.post("/register", handleRegister);
 app.post("/chat", verifyToken, handleChat);
 app.get("/popular-prompts", handlePopularPrompts);
-app.post("/upload", verifyToken, handleUpload);
+app.post("/upload", verifyToken, upload.single("file"), handleUpload);
 app.get("/questions", handleQuestion);
 app.post("/delete-question", handleDeleteQuestion);
 app.get("/chat-sessions", verifyToken, handleChatSession);
-app.get("/session-messages/:sessionId", verifyToken, handleChatSession);
+app.get("/session-messages/:sessionId", verifyToken, handleHistorySession);
 app.get("/user-info", verifyToken, handleUserInfo);
 app.post("/api/supabase-stats", verifyToken, checkRole("admin"), handleSupabaseStats);
 app.get("/api/stats/users", verifyToken, checkRole("admin"), handleUserStats);
@@ -74,20 +84,12 @@ app.get('/api/activity-data', handleActivityStat);
 
 
 
-app.get("/register", guestOnly, (req, res) => {
-  res.render("register");
-});
-
-app.post("/logout", (req, res) => {
-  res.clearCookie("sb-access-token");
-  res.clearCookie("sb:token");
-  res.redirect("/login");
-});
-
+// Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ status: "healthy" });
 });
 
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({
@@ -98,6 +100,7 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server berjalan pada port ${PORT}`);

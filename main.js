@@ -12,7 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./db/db.js";
 
 
-const supabaseUrl = "https://uzupsjkvmumjlzofyhxu.supabase.co";
+const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const openAIApiKey = process.env.OPENAI_API_KEY;
 

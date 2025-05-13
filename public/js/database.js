@@ -6,7 +6,7 @@ const filePreview = document.getElementById("filePreview");
 const statusMessage = document.getElementById("statusMessage");
 const allQuestionList = document.getElementById("allQuestionList");
 const userIconContainer = document.getElementById('userIconContainer');
-const userDropdown = document.getElementById('userDropdown');
+const userDropdown = document.getElementById('user-dropdown');
 const userEmailFull = document.getElementById('userEmailFull');
 const logoutButton = document.getElementById('logoutButton');
 
@@ -297,6 +297,7 @@ async function fetchUserInfo() {
     // Handle error gracefully - perhaps leave as default "--"
   }
 }
+
 // Initial load - fetch all questions when page loads
 document.addEventListener("DOMContentLoaded", function() {
     fetchAndRenderAllQuestions();

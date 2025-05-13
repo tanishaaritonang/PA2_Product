@@ -68,7 +68,7 @@ const handleUpload = async (req, res) => {
 
         // Store vectors with custom schema
         await SupabaseVectorStore.fromDocuments(documents, embeddings, {
-            supabase,
+            client: supabase,
             tableName: "documents",
             queryName: "match_documents",
             columns: {
