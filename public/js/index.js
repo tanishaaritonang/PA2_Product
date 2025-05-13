@@ -112,7 +112,11 @@ if (clearChatBtn) {
 function clearChat() {
   // Generate a new session ID
   sessionId = Date.now().toString();
-  localStorage.setItem("currentSessionId", sessionId);
+
+  // remove the session ID from the URL
+  const url = new URL(window.location.href);
+  url.searchParams.delete("sessionId");
+  window.history.pushState({}, "", url);
 
   // Clear the UI
   chatbotConversation.innerHTML = "";
@@ -139,6 +143,9 @@ function clearChat() {
 
   // Refresh popular prompts
   fetchPopularPrompts();
+
+  // Refresh chat sessions
+  fetchChatSessions();
 }
 
 // Function to fetch chat sessions
@@ -169,8 +176,14 @@ async function fetchChatSessions() {
 }
 
 function renderCurrentSession() {
-  // get the current session ID from localStorage
-  const currentSessionId = localStorage.getItem("currentSessionId");
+  let currentSessionId;
+  // get the current session ID from URL if available
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSessionId = urlParams.get("sessionId");
+  if (urlSessionId) {
+    currentSessionId = urlSessionId;
+  }
+
   if (!currentSessionId) return;
   loadChatSession(currentSessionId);
 }
@@ -239,7 +252,11 @@ async function loadChatSession(id) {
 
     // Store the current session ID
     sessionId = id;
-    localStorage.setItem("currentSessionId", sessionId);
+
+    // add session ID to the URL query string
+    const url = new URL(window.location.href);
+    url.searchParams.set("sessionId", sessionId);
+    window.history.pushState({}, "", url);
 
     // Fetch all messages for this session
     const response = await fetch(`/session-messages/${id}`, {
@@ -288,10 +305,10 @@ async function fetchPopularPrompts() {
   try {
     const response = await fetch("/popular-prompts");
     if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-    
+
     const data = await response.json();
-    const prompts = data.map(item => item.prompt); // Extract only prompts
-    
+    const prompts = data.map((item) => item.prompt); // Extract only prompts
+
     renderPopularPrompts(prompts);
   } catch (error) {
     console.error("Error fetching popular prompts:", error);
@@ -354,8 +371,13 @@ async function handleUserMessage() {
   chatbotConversation.appendChild(loadingBubble);
   chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
 
-  sessionId = localStorage.getItem("currentSessionId") || Date.now().toString();
-  localStorage.setItem("currentSessionId", sessionId);
+  // get the session ID from the URL if available
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSessionId = urlParams.get("sessionId");
+
+  if (urlSessionId) {
+    sessionId = urlSessionId;
+  }
 
   try {
     const response = await fetch("/chat", {
