@@ -1,15 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-@font-face {
-  font-family: 'ChillChirp';
-  src: url('./fonts/Chill Chrip Free.ttf') format('truetype');
+@import url("https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap");
 
-}
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: "Lexend Deca", sans-serif;
+  
 }
 
 *,
@@ -64,9 +61,9 @@
   transform: translateX(0%);
 }
 
-  .sidebar-toggle.collapsed {
-    left: 220px;
-  }
+.sidebar-toggle.collapsed {
+  left: 220px;
+}
 
 .sidebar-header {
   display: flex;
@@ -105,10 +102,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
+  padding: 17px;
   position: relative;
   background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
 
@@ -228,7 +225,14 @@
   flex-direction: column;
   gap: 15px;
   padding-bottom: 80px;
-   background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+  background: 
+        radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
+        radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
+        radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
+        radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
+        radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
+        radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
+        #f7f8fc;
   position: relative;
   isolation: isolate;
   /* Add padding to prevent content from being hidden behind the fixed input */
@@ -310,6 +314,9 @@ input {
 }
 
 .default-text {
+  border-radius: 15px;
+  padding: 15px;
+  margin: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -318,9 +325,10 @@ input {
   padding: 0 10px;
   text-align: center;
   color: #1a1a4b;
-  margin-bottom: 5px; 
+  margin-bottom: 5px;
   position: relative;
   z-index: 1;
+  
 }
 
 .default-text h2 {
@@ -333,9 +341,8 @@ input {
 }
 
 .sidebar-toggle {
-  background: #58A5F5;
+  background: #fff;
   border: none;
-  color: var(--icon-color);
   cursor: pointer;
   width: max-content;
   position: absolute;
@@ -385,24 +392,26 @@ input {
   padding: 15px;
   max-width: 800px;
   margin: 0 auto;
-  margin-top: 0; /* Hilangkan jarak atas jika ada */
+  margin-top: 0;
+  /* Hilangkan jarak atas jika ada */
   padding-top: 0;
   z-index: 1;
 }
 
 .popular-prompt-btn {
-  background-color: #f1f3f4;
-  border: 1px solid #e0e0e0;
+  background-color: #E8EFFF;
+  border: 1px solid #fff;
   border-radius: 18px;
   padding: 8px 15px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s;
   color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .popular-prompt-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #cfdcfa;
   transform: translateY(-2px);
 }
 
@@ -433,8 +442,15 @@ input {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes typing-bounce {
@@ -503,13 +519,13 @@ input {
   border-bottom: 1px solid #e0e0e0;
 }
 
-.sidebar-header h1{
+.sidebar-header h1 {
   color: #333;
   font-size: 1.2rem;
 }
 
-#header-icon{
- padding-left: 30px;
+#header-icon {
+  padding-left: 30px;
 }
 
 
@@ -574,6 +590,7 @@ input {
   gap: 8px;
   transition: all 0.3s ease;
 }
+
 .user-btn:hover {
   background-color: #e9ecef;
 }
@@ -583,10 +600,10 @@ input {
   height: 20px;
   border-radius: 50%;
   /* display: flex; */
-  /* align-items: center;
+/* align-items: center;
   justify-content: center;
   font-weight: lighter;
-} */ 
+} */
 
 .user-icon {
   display: inline-flex;
@@ -600,7 +617,7 @@ input {
   right: 0;
   background-color: white;
   min-width: 200px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   z-index: 1000;
   margin-top: 5px;
@@ -660,6 +677,7 @@ input {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translate(-50%, -150%) scale(1.5);
@@ -674,19 +692,20 @@ input {
     position: relative;
   }
 
-  .default-text{
+  .default-text {
     background-color: rgba(255, 255, 255, 0.7);
     border-radius: 15px;
     padding: 15px;
     margin: 10px;
   }
+
   .sidebar {
     position: fixed;
     left: -250px;
     /* Hide sidebar initially */
     top: 0;
     bottom: 0;
-    width: 250px;
+    width: 270px;
     background-color: rgb(255, 255, 255)cfc;
     z-index: 999;
     transition: left 0.3s ease;
@@ -699,7 +718,8 @@ input {
   }
 
   .sidebar-toggle.collapsed {
-    left: 200px;
+    margin-top: 5px;
+    left: 220px;
   }
 
   .sidebar-toggle {
@@ -708,7 +728,7 @@ input {
     left: 10px;
     z-index: 1000;
     transition: left 0.3s ease;
-    background-color: #58A5F5;
+    /* background-color: #58A5F5; */
   }
 
 
@@ -735,11 +755,7 @@ input {
     margin-left: 0;
   }
 
-  .chatbot-header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-  }
+
 
   .profile-container {
     margin-left: 0;
@@ -769,11 +785,29 @@ input {
   .chatbot-conversation-container {
     padding: 10px;
     padding-bottom: 100px;
-    background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+background: 
+        radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
+        radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
+        radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
+        radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
+        radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
+        radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
+        #f7f8fc;
     position: relative;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
   }
 
   .suggested-question-btn,
@@ -792,21 +826,20 @@ input {
     /* jangan geser konten saat sidebar tampil di ponsel */
   }
 
-    .chatbot-header {
-    padding: 9px;
+
+  .chatbot-header h1 {
+    padding-left: 10px;
   }
 
-      .chatbot-header  h1{
-        padding-left: 10px;
-  }
-    .user-btn {
-    padding: 4px 12px;
+  .user-btn {
+    padding: 10px 12px;
     font-size: 13px;
   }
-.sidebar.active ~ .chatbot-wrapper{
-  filter: blur(1px);
-  pointer-events: none;
-  transition: filter 0.3s ease;
-}
+
+  .sidebar.active~.chatbot-wrapper {
+    filter: blur(1px);
+    pointer-events: none;
+    transition: filter 0.3s ease;
+  }
 
 }
