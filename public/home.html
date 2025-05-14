@@ -1,51 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-    />
-    <title>TanyaBot Chatbot</title>
-    <link rel="stylesheet" href="/css/index.css" />
-  </head>
-  <body>
-    <div class="app-container">
-      <!-- User Dropdown -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>TanyaBot Chatbot</title>
+  <link rel="stylesheet" href="/css/index.css" />
+</head>
 
-      <!-- New Sidebar for Chat History -->
-      <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <h2>Chat History</h2>
-        </div>
-        <div class="recent-chats-container" id="recent-chats-container">
-          <!-- Chat history items will be dynamically added here -->
-          <div class="loading-history">Loading history...</div>
-        </div>
+<body>
+  <div class="app-container">
+    <div id="animation-container"></div>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Chat History</h2>
       </div>
+      <div class="recent-chats-container" id="recent-chats-container">
+        <div class="loading-history">Loading history...</div>
+      </div>
+    </div>
 
-      <div class="chatbot-wrapper" id="chatbot-wrapper">
-        <button class="sidebar-toggle" id="sidebar-toggle">
-          <svg
-            style="width: 20px; height: 20px"
-            role="img"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <title>Menu</title>
-            <path
-              d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
-              fill="white"
-            />  
-          </svg>
-        </button>
-        <div class="chatbot-header">
-          <div class="chatbot-avatar">
-            <!-- <img src="./img/logo.png" alt="AnaQues Avatar" class="avatar-img"> -->
-          </div>
-          <a href="home.html"><h1>TanyaBot</h1></a>
+    <button class="sidebar-toggle" id="sidebar-toggle">
+      <svg style="width: 20px; height: 20px" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <title>Menu</title>
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="white" />
+      </svg>
+    </button>
+    <!-- Main Chatbot Wrapper -->
+    <div class="chatbot-wrapper" id="chatbot-wrapper">
+      <!-- Header -->
+      <div class="chatbot-header">
+        <div class="header-left">
+          <div class="chatbot-avatar"></div>
+          <a href="home.html" id="header-icon">
+            <h1>TanyaBot</h1>
+          </a>
         </div>
+
+        <!-- User Dropdown - Moved inside header -->
         <div class="user-dropdown" id="user-dropdown">
           <button class="user-btn" id="user-btn">
             <span class="user-icon">You</span>
@@ -53,58 +47,39 @@
           <div class="dropdown-content" id="dropdown-content">
             <div class="user-email" id="user-email-full">user@example.com</div>
             <button class="dropdown-btn" id="logout-btn">
-              <img src="./img/logout.png" alt="Logout" />
-              Logout
+              <i class="fas fa-sign-out-alt"></i> Logout
             </button>
           </div>
         </div>
+      </div>
 
-        <div
-          class="chatbot-conversation-container"
-          id="chatbot-conversation-container">
-          <!-- Chat messages will be dynamically added here -->
 
-          <!-- `ini default yang mau diperbaiki -->
-          <div class="default-text">
-            <!-- <h1>Anaques</h1> -->
-            <img
-              src="./img/logo.png"
-              alt="Anaques Logo"
-              style="
-                width: 200px;
-                height: auto;
-                display: block;
-                margin: 10px auto;
-              "
-            />
-            <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
-            <p>Ask me anything what's on your mind.</p>
-            <p>I Am here to assist you!</p>
-            <br />
-            <h3>Top Questions, Ready for You! 😱 👇🏼</h3>
-          </div>
-
-          <div
-            class="popular-prompts-container"
-            id="popular-prompts-container"
-          ></div>
+      <!-- Conversation -->
+      <div class="chatbot-conversation-container" id="chatbot-conversation-container">
+        <div class="default-text">
+          <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
+          <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
+          <p>I Am here to assist you!</p>
+          <br />
+          <h3>Pertanyaan Seru Hari Ini 🎈👇</h3>
         </div>
-        <div class="input-box">
-          <input id="user-input" placeholder="Ask me anything..." />
-          <button id="clear-chat-btn" class="clear-chat-btn">
-            <img src="./img/trash.png" width="20px" height="auto" />
-          </button>
+        <div class="popular-prompts-container" id="popular-prompts-container"></div>
+      </div>
 
-          <button id="submit-btn" type="submit">
-            <img
-              src="img/send-removebg-preview.png"
-              alt="Send"
-              style="height: 20px"
-            />
-          </button>
-        </div>
+      <!-- Input -->
+      <div class="input-box">
+        <input id="user-input" placeholder="Ask me anything..." />
+        <button id="clear-chat-btn" class="clear-chat-btn">
+          <img src="./img/trash.png" width="20px" />
+        </button>
+        <button id="submit-btn" type="submit">
+          <img src="img/send-removebg-preview.png" alt="Send" style="height: 20px" />
+        </button>
       </div>
     </div>
-    <script type="module" src="/js/index.js"></script>
-  </body>
+  </div>
+
+  <script type="module" src="/js/index.js"></script>
+</body>
+
 </html>

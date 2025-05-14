@@ -6,7 +6,7 @@ const handlePopularPrompts = async (req, res) =>{
       .from("user_prompts")
       .select("prompt, count")
       .order("count", { ascending: false })
-      .limit(5);
+      .limit(3);
 
     if (error) throw error;
 

@@ -6,7 +6,8 @@ const chatbotConversation = document.getElementById(
 );
 const recentChatsContainer = document.getElementById("recent-chats-container");
 const clearChatBtn = document.getElementById("clear-chat-btn");
-const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebarToggle1= document.getElementById("sidebar-toggle1");
+const sidebarToggle= document.getElementById("sidebar-toggle");
 const userBtn = document.getElementById("user-btn");
 const dropdownContent = document.getElementById("dropdown-content");
 const logoutBtn = document.getElementById("logout-btn");
@@ -18,6 +19,7 @@ sidebarToggle.addEventListener("click", () => {
   const chatbotWrapper = document.getElementById("chatbot-wrapper");
   sidebar.classList.toggle("collapsed");
   chatbotWrapper.classList.toggle("collapsed");
+  sidebarToggle.classList.toggle("collapsed");
 });
 
 // Generate a session ID when the page loads or get from localStorage
@@ -113,6 +115,7 @@ if (clearChatBtn) {
   clearChatBtn.addEventListener("click", clearChat);
 }
 
+
 // Function to clear the chat
 function clearChat() {
   // Generate a new session ID
@@ -128,30 +131,25 @@ function clearChat() {
 
   // Add back the default welcome message
   chatbotConversation.innerHTML = `
-        <div class="default-text">
-            <img
-              src="./img/logo.png"
-              alt="Anaques Logo"
-              style="
-                width: 200px;
-                height: auto;
-                display: block;
-                margin: 10px auto;
-              "
-            />
+            <div class="default-text">
+            <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
             <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
-            <p>Ask me anything what's on your mind.</p>
             <p>I Am here to assist you!</p>
-        </div>
-        <div class="popular-prompts-container" id="popular-prompts-container"></div>
+            <br />
+            <h3>Top Questions, Ready for You! 😱 👇🏼</h3>
+          </div>
+          <div class="popular-prompts-container" id="popular-prompts-container"></div>
     `;
 
   // Refresh popular prompts
   fetchPopularPrompts();
-
   // Refresh chat sessions
   fetchChatSessions();
 }
+
+document.getElementById("sidebar-toggle").addEventListener("click", function () {
+  document.getElementById("sidebar").classList.toggle("active");
+});
 
 // Function to fetch chat sessions
 async function fetchChatSessions() {
@@ -407,6 +405,7 @@ async function handleUserMessage() {
 
     // Add AI response to UI with typing animation
     addMessageToUI(responseData, "ai");
+    showFloatingAnimation(['🪄', '🔮', '🌟']); 
 
     // Refresh chat sessions after a message is sent
     fetchChatSessions();
@@ -482,14 +481,30 @@ function typeMessage(message, element) {
   }, typingSpeed);
 }
 
+function showFloatingAnimation(emoji = '⭐') {
+  const container = document.getElementById('animation-container');
+  const icon = document.createElement('div');
+  icon.className = 'floating-icon';
+  icon.textContent = emoji;
+
+  // Set random X offset for variation
+  icon.style.left = `${Math.random() * 100 - 50}%`;
+
+  container.appendChild(icon);
+
+  // Hapus animasi setelah selesai
+  setTimeout(() => {
+    container.removeChild(icon);
+  }, 2000);
+}
+
+
 // Load chat sessions and popular prompts on page load
 document.addEventListener("DOMContentLoaded", () => {
   // Fetch user info for the dropdown
   fetchUserInfo();
-
   // Fetch chat history for the sidebar
   fetchChatSessions();
-
   // Fetch popular prompts
   fetchPopularPrompts();
 });

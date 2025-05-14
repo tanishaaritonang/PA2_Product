@@ -48,7 +48,7 @@ const handleLogin = async (req, res) => {
     // 3. Return success response
     const response = {
       success: true,
-      message: "Login successful", // English message
+      message: "Kamu berhasil masuk!🌟", // English message
       user,
     };
     
