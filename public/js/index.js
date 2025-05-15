@@ -132,15 +132,17 @@ function clearChat() {
   // Add back the default welcome message
   chatbotConversation.innerHTML = `
             <div class="default-text">
-            <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
-            <h2>Hello! I Am TanyaBot Ready To Help You Explore and Wonder</h2>
-            <p>I Am here to assist you!</p>
-            <br />
-            <h3>Top Questions, Ready for You! 😱 👇🏼</h3>
-          </div>
-          <div class="popular-prompts-container" id="popular-prompts-container"></div>
-    `;
+          <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
+          <h2>🌟 Halo! Aku TanyaBot🌟</h2>
+          <p>Ayo jelajahi dunia bersama! 🚀</p>
+          <br />
+          <h3>Pertanyaan yang paling populer 🎈👇</h3>
+        </div>
+        <div class="popular-prompts-container" id="popular-prompts-container"></div>
+      </div>
 
+    `;
+  showWelcomeAnimation("./img/welcome.png");
   // Refresh popular prompts
   fetchPopularPrompts();
   // Refresh chat sessions
@@ -495,7 +497,7 @@ function showFloatingAnimation(emoji = '⭐') {
   }, 2000);
 }
 
-function showWelcomeAnimation(imagePath = 'hi.jpg') {
+function showWelcomeAnimation(imagePath = './img/welcome.jpg') {
   // Get the conversation container where we want to show the animation
   const container = document.getElementById('chatbot-conversation-container');
   
