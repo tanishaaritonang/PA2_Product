@@ -13,10 +13,16 @@
   <div class="app-container">
     <div id="animation-container"></div>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
+        <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h2>📚 Chat History</h2>
       </div>
+      <button id="new-chat-desktop" class="new-chat-desktop">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+            <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+          </svg>
+          New chat
+        </button>
       <div class="recent-chats-container" id="recent-chats-container">
         <div class="loading-history">Loading history...</div>
       </div>
@@ -54,7 +60,7 @@
         </div>
       </div>
 
-
+      
       <!-- Conversation -->
       <div class="chatbot-conversation-container" id="chatbot-conversation-container">
   
@@ -66,8 +72,17 @@
           <h3>Pertanyaan yang paling populer 🎈👇</h3>
         </div>
         <div class="popular-prompts-container" id="popular-prompts-container"></div>
+        
       </div>
-
+      <div class="new-chat-mobile-container">
+        <button id="new-chat-mobile" class="new-chat-mobile">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+            <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+          </svg>
+          New chat
+        </button>
+      </div>
+      
       <!-- Input -->
       <div class="input-box">
         <input id="user-input" placeholder="Ask me anything..." />

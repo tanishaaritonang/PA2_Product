@@ -13,6 +13,8 @@ const dropdownContent = document.getElementById("dropdown-content");
 const logoutBtn = document.getElementById("logout-btn");
 const userEmailShort = document.getElementById("user-email-short");
 const userEmailFull = document.getElementById("user-email-full");
+const newChatDesktop = document.getElementById("new-chat-desktop");
+const newChatMobile = document.getElementById("new-chat-mobile");
 
 sidebarToggle.addEventListener("click", () => {
   const sidebar = document.getElementById("sidebar");
@@ -112,7 +114,7 @@ if (logoutBtn) {
 
 // Add event listener for the clear chat button
 if (clearChatBtn) {
-  clearChatBtn.addEventListener("click", clearChat);
+  clearChatBtn.addEventListener("click", clearInputText);
 }
 
 
@@ -139,14 +141,14 @@ function clearChat() {
           <h3>Pertanyaan yang paling populer 🎈👇</h3>
         </div>
         <div class="popular-prompts-container" id="popular-prompts-container"></div>
-      </div>
-
     `;
+  
   showWelcomeAnimation("./img/welcome.png");
   // Refresh popular prompts
   fetchPopularPrompts();
   // Refresh chat sessions
   fetchChatSessions();
+  
 }
 
 document.getElementById("sidebar-toggle").addEventListener("click", function () {
@@ -580,6 +582,21 @@ function clearThinkingAnimation() {
     }
   }
 }
+
+function clearInputText() {
+  userInput.value = "";
+  userInput.focus();
+}
+
+if (newChatDesktop) {
+  newChatDesktop.addEventListener("click", clearChat);
+}
+
+if (newChatMobile) {
+  newChatMobile.addEventListener("click", clearChat);
+}
+
+
 // Load chat sessions and popular prompts on page load
 document.addEventListener("DOMContentLoaded", () => {
   // Fetch user info for the dropdown

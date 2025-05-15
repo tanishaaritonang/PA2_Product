@@ -6,7 +6,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Lexend Deca", sans-serif;
-  
+
 }
 
 *,
@@ -72,7 +72,52 @@
   margin-bottom: 20px;
 }
 
+/* New Chat Button Styles */
+.new-chat-container {
+  display: flex;
+  justify-content: center;
+  padding: 15px 0;
+  margin: 5px 0;
+  width: 100%;
+  position: relative;
+  /* Ensure it takes space */
+  z-index: 10;
+  /* Make sure it's above other elements */
+}
 
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: auto;
+  /* Ensure height is determined by content */
+}
+
+.new-chat-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #222;
+}
+
+.new-chat-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #aaa;
+}
+
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
 
 .recent-chats-container {
   flex: 1;
@@ -225,14 +270,14 @@
   flex-direction: column;
   gap: 15px;
   padding-bottom: 80px;
-  background: 
-        radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
-        radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
-        radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
-        radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
-        radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
-        radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
-        #f7f8fc;
+  background:
+    radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
+    radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
+    radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
+    radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
+    radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
+    radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
+    #f7f8fc;
   position: relative;
   isolation: isolate;
   /* Add padding to prevent content from being hidden behind the fixed input */
@@ -328,7 +373,7 @@ input {
   margin-bottom: 5px;
   position: relative;
   z-index: 1;
-  
+
 }
 
 .default-text h2 {
@@ -689,7 +734,8 @@ input {
   bottom: 10%;
   left: 0;
   z-index: 1000;
-  pointer-events: none; /* Ensures it doesn't block interactions */
+  pointer-events: none;
+  /* Ensures it doesn't block interactions */
 }
 
 .welcome-floating-image {
@@ -703,20 +749,25 @@ input {
     opacity: 0;
     transform: translateX(-100%) scale(0.7);
   }
+
   15% {
     opacity: 1;
     transform: translateX(10px) scale(1);
   }
+
   25% {
     transform: translateX(0) scale(1.05);
   }
+
   30% {
     transform: translateX(5px) scale(1);
   }
+
   70% {
     opacity: 1;
     transform: translateX(5px) scale(1);
   }
+
   100% {
     opacity: 0;
     transform: translateX(100px) translateY(-50px) scale(0.8);
@@ -733,66 +784,160 @@ input {
     opacity: 0;
     transform: translateX(-100%) scale(0.7);
   }
+
   10% {
     opacity: 0.5;
     transform: translateX(-50%) scale(0.8);
   }
+
   20% {
     opacity: 1;
     transform: translateX(10px) scale(1);
   }
+
   30% {
     transform: translateX(0) scale(1);
   }
+
   40% {
     transform: translateX(5px) translateY(-10px);
   }
+
   50% {
     transform: translateX(5px) translateY(0);
   }
+
   55% {
     transform: translateX(5px) translateY(-5px);
   }
+
   60% {
     transform: translateX(5px) translateY(5px);
   }
+
   65% {
     transform: translateX(5px) translateY(-3px);
   }
+
   70% {
     transform: translateX(5px) translateY(3px);
   }
+
   75% {
     transform: translateX(5px) translateY(-2px);
   }
+
   80% {
     opacity: 1;
     transform: translateX(5px) translateY(0);
   }
+
   85% {
     opacity: 0.8;
     transform: translateX(5px) scale(0.95);
   }
+
   90% {
     opacity: 0.6;
     transform: translateX(-30%) scale(0.9);
   }
+
   95% {
     opacity: 0.3;
     transform: translateX(-50%) scale(0.85);
   }
+
   100% {
     opacity: 0;
     transform: translateX(-100%) scale(0.8);
   }
 }
+
 .avatar-animation-wrapper.fade-out {
   opacity: 0;
   transition: opacity 0.5s ease-out;
 }
 
+.new-chat-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  margin-bottom: 10px;
+  background-color: #0A2739;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  gap: 8px;
+  width: 100%;
+}
+
+.new-chat-desktop:hover {
+  background-color: #0D3249;
+}
+
+.new-chat-mobile-container {
+  display: none;
+  /* Hidden on desktop by default */
+}
+
 /* Mobile and tablet styles */
 @media (max-width: 768px) {
+
+  .new-chat-desktop {
+    display: none;
+  }
+
+  .new-chat-mobile-container {
+    display: flex;
+    /* Hidden on desktop by default */
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+
+  .new-chat-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px 2px 2px;
+    background-color: white;
+    border: 1px solid #d4d4d8;
+    border-radius: 999px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 5px;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
+  }
+
+  .new-chat-mobile svg {
+    width: 30px;
+    height: 22px;
+  }
+
+  .new-chat-mobile:hover {
+    background-color: #f9fafb;
+  }
+
+  .user-dropdown {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+    display: inline-block;
+    padding-bottom: 20px;
+
+  }
+
   .app-container {
     flex-direction: row;
     position: relative;
@@ -824,13 +969,13 @@ input {
   }
 
   .sidebar-toggle.collapsed {
-    margin-top: 5px;
+    margin-top: 3px;
     left: 220px;
   }
 
   .sidebar-toggle {
     position: fixed;
-    top: 10px;
+    top: 14px;
     left: 10px;
     z-index: 1000;
     transition: left 0.5s ease;
@@ -891,14 +1036,14 @@ input {
   .chatbot-conversation-container {
     padding: 10px;
     padding-bottom: 100px;
-background: 
-        radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
-        radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
-        radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
-        radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
-        radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
-        radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
-        #f7f8fc;
+    background:
+      radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
+      radial-gradient(circle at right top, #e0e8ff 0%, transparent 30%),
+      radial-gradient(circle at left center, #d8e2ff 0%, transparent 30%),
+      radial-gradient(circle at right center, #e6f0ff 0%, transparent 30%),
+      radial-gradient(circle at bottom right, #effffa 0%, transparent 30%),
+      radial-gradient(circle at bottom left, #f5f0ff 0%, transparent 30%),
+      #f7f8fc;
     position: relative;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -906,13 +1051,15 @@ background:
 
   @keyframes gradient {
     0% {
-        background-position: 0% 50%;
+      background-position: 0% 50%;
     }
+
     50% {
-        background-position: 100% 50%;
+      background-position: 100% 50%;
     }
+
     100% {
-        background-position: 0% 50%;
+      background-position: 0% 50%;
     }
   }
 
