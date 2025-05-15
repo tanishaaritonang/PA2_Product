@@ -520,7 +520,7 @@ function showWelcomeAnimation(imagePath = './img/welcome.jpg') {
   // Remove the animation after it completes
   setTimeout(() => {
     container.removeChild(wrapper);
-  }, 3000); // Animation duration + extra time to ensure completion
+  }, 9000); // Animation duration + extra time to ensure completion
 }
 
 

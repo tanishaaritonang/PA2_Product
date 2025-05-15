@@ -741,7 +741,7 @@ input {
 .welcome-floating-image {
   width: 180px;
   height: auto;
-  animation: avatarThinking 4.5s ease-in-out forwards;
+  animation: avatarThinking 10s ease-in-out forwards;
 }
 
 @keyframes slideInFromLeft {
