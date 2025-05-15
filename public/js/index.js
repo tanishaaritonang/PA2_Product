@@ -23,7 +23,7 @@ sidebarToggle.addEventListener("click", () => {
 });
 
 // Generate a session ID when the page loads or get from localStorage
-let sessionId;
+let sessionId = Date.now().toString();
 
 // Get user information on page load
 async function fetchUserInfo() {
@@ -352,21 +352,21 @@ userInput.addEventListener("keypress", (e) => {
 
 async function handleUserMessage() {
   const question = userInput.value;
-  if (!question.trim()) return; // Don't send empty messages
+  if (!question.trim()) return;
 
-  userInput.value = ""; // Clear input field
-  button.disabled = true; // Disable button during request
+  userInput.value = "";
+  button.disabled = true;
 
-  // Remove default text but keep existing messages
   const defaultText = chatbotConversation.querySelector(".default-text");
   if (defaultText) {
     defaultText.remove();
   }
 
-  // Add human message to UI
   addMessageToUI(question, "human");
+  showThinkingAnimation("./img/thinking.png");
 
-  // Add AI loading message immediately
+ 
+  
   const loadingBubble = document.createElement("div");
   loadingBubble.classList.add("speech", "speech-ai");
   loadingBubble.innerHTML =
@@ -374,7 +374,6 @@ async function handleUserMessage() {
   chatbotConversation.appendChild(loadingBubble);
   chatbotConversation.scrollTop = chatbotConversation.scrollHeight;
 
-  // get the session ID from the URL if available
   const urlParams = new URLSearchParams(window.location.search);
   const urlSessionId = urlParams.get("sessionId");
 
@@ -390,40 +389,38 @@ async function handleUserMessage() {
       },
       body: JSON.stringify({
         question,
-        sessionId, // Send sessionId with each request
+        sessionId,
       }),
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}`);
     }
-
     const responseData = await response.json();
-
-    // Remove loading message
     chatbotConversation.removeChild(loadingBubble);
-
-    // Add AI response to UI with typing animation
+    
+    // Clear thinking animation before showing response
+    clearThinkingAnimation();
+    
     addMessageToUI(responseData, "ai");
-    showFloatingAnimation(['🪄', '🔮', '🌟']); 
+    showFloatingAnimation(['🌟']);
 
-    // Refresh chat sessions after a message is sent
     fetchChatSessions();
-
-    // Refresh popular prompts after successful message
     fetchPopularPrompts();
   } catch (error) {
     console.error("Error fetching data:", error);
-    // Remove loading message
     chatbotConversation.removeChild(loadingBubble);
-    // Show error message in UI
+    
+    // Clear thinking animation on error too
+    clearThinkingAnimation();
+    
     addMessageToUI(
       "Sorry, I encountered an error. Please try again.",
       "ai",
       true
     );
   } finally {
-    button.disabled = false; // Re-enable button
+    button.disabled = false;
   }
 }
 
@@ -498,11 +495,94 @@ function showFloatingAnimation(emoji = '⭐') {
   }, 2000);
 }
 
+function showWelcomeAnimation(imagePath = 'hi.jpg') {
+  // Get the conversation container where we want to show the animation
+  const container = document.getElementById('chatbot-conversation-container');
+  
+  // Create the floating image element
+  const welcomeImage = document.createElement('img');
+  welcomeImage.className = 'welcome-floating-image';
+  welcomeImage.src = imagePath;
+  welcomeImage.alt = 'Welcome';
+  
+  // Create a wrapper div to control the animation position
+  const wrapper = document.createElement('div');
+  wrapper.className = 'welcome-animation-wrapper';
+  wrapper.appendChild(welcomeImage);
+  
+  // Add the wrapper to the container
+  container.appendChild(wrapper);
+  
+  // Remove the animation after it completes
+  setTimeout(() => {
+    container.removeChild(wrapper);
+  }, 3000); // Animation duration + extra time to ensure completion
+}
 
+
+let thinkingAnimationInterval;
+let currentThinkingAnimation = null;
+
+// Modify the showAvatarAnimation function
+function showThinkingAnimation(imagePath = './img/thinking.png') {
+  // Clear any existing animation
+  if (currentThinkingAnimation) {
+    clearThinkingAnimation();
+  }
+
+  // Get the conversation container where we want to show the animation
+  const container = document.getElementById('chatbot-conversation-container');
+  
+  // Create the floating image element
+  const avatarImage = document.createElement('img');
+  avatarImage.className = 'avatar-floating-image thinking';
+  avatarImage.src = imagePath;
+  avatarImage.alt = 'Thinking';
+  
+  // Create a wrapper div to control the animation position
+  const wrapper = document.createElement('div');
+  wrapper.className = 'avatar-animation-wrapper';
+  wrapper.appendChild(avatarImage);
+  
+  // Add the wrapper to the container
+  container.appendChild(wrapper);
+  
+  // Store reference to current animation
+  currentThinkingAnimation = wrapper;
+
+  // Start the continuous thinking animation
+  thinkingAnimationInterval = setInterval(() => {
+    avatarImage.classList.remove('thinking');
+    // Trigger reflow
+    void avatarImage.offsetWidth;
+    avatarImage.classList.add('thinking');
+  }, 4500); // Restart animation every 4.5 seconds
+}
+
+function clearThinkingAnimation() {
+  if (currentThinkingAnimation) {
+    // Add fade-out class
+    currentThinkingAnimation.classList.add('fade-out');
+    
+    // Remove after animation completes
+    setTimeout(() => {
+      if (currentThinkingAnimation && currentThinkingAnimation.parentNode) {
+        currentThinkingAnimation.parentNode.removeChild(currentThinkingAnimation);
+      }
+      currentThinkingAnimation = null;
+    }, 500); // Match this with your CSS transition time
+    
+    // Clear the interval
+    if (thinkingAnimationInterval) {
+      clearInterval(thinkingAnimationInterval);
+    }
+  }
+}
 // Load chat sessions and popular prompts on page load
 document.addEventListener("DOMContentLoaded", () => {
   // Fetch user info for the dropdown
   fetchUserInfo();
+  showWelcomeAnimation("./img/welcome.png");
   // Fetch chat history for the sidebar
   fetchChatSessions();
   // Fetch popular prompts

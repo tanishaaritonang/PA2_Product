@@ -684,6 +684,112 @@ input {
   }
 }
 
+.welcome-animation-wrapper {
+  position: absolute;
+  bottom: 10%;
+  left: 0;
+  z-index: 1000;
+  pointer-events: none; /* Ensures it doesn't block interactions */
+}
+
+.welcome-floating-image {
+  width: 180px;
+  height: auto;
+  animation: avatarThinking 4.5s ease-in-out forwards;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(10px) scale(1);
+  }
+  25% {
+    transform: translateX(0) scale(1.05);
+  }
+  30% {
+    transform: translateX(5px) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(5px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100px) translateY(-50px) scale(0.8);
+  }
+}
+
+.avatar-floating-image.thinking {
+  animation: avatarThinking 4.5s ease-in-out infinite;
+  width: 200px;
+}
+
+@keyframes avatarThinking {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.7);
+  }
+  10% {
+    opacity: 0.5;
+    transform: translateX(-50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(10px) scale(1);
+  }
+  30% {
+    transform: translateX(0) scale(1);
+  }
+  40% {
+    transform: translateX(5px) translateY(-10px);
+  }
+  50% {
+    transform: translateX(5px) translateY(0);
+  }
+  55% {
+    transform: translateX(5px) translateY(-5px);
+  }
+  60% {
+    transform: translateX(5px) translateY(5px);
+  }
+  65% {
+    transform: translateX(5px) translateY(-3px);
+  }
+  70% {
+    transform: translateX(5px) translateY(3px);
+  }
+  75% {
+    transform: translateX(5px) translateY(-2px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(5px) translateY(0);
+  }
+  85% {
+    opacity: 0.8;
+    transform: translateX(5px) scale(0.95);
+  }
+  90% {
+    opacity: 0.6;
+    transform: translateX(-30%) scale(0.9);
+  }
+  95% {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.8);
+  }
+}
+.avatar-animation-wrapper.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
 
 /* Mobile and tablet styles */
 @media (max-width: 768px) {
@@ -708,7 +814,7 @@ input {
     width: 270px;
     background-color: rgb(255, 255, 255)cfc;
     z-index: 999;
-    transition: left 0.3s ease;
+    transition: left 0.5s ease;
   }
 
   .sidebar.active {
@@ -727,7 +833,7 @@ input {
     top: 10px;
     left: 10px;
     z-index: 1000;
-    transition: left 0.3s ease;
+    transition: left 0.5s ease;
     /* background-color: #58A5F5; */
   }
 
