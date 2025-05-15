@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,25 +14,27 @@
   <div class="app-container">
     <div id="animation-container"></div>
     <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <h2>📚 Chat History</h2>
       </div>
       <button id="new-chat-desktop" class="new-chat-desktop">
-          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
-            <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
-          </svg>
-          New chat
-        </button>
+        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+          <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+        </svg>
+        New chat
+      </button>
       <div class="recent-chats-container" id="recent-chats-container">
         <div class="loading-history">Loading history...</div>
       </div>
     </div>
 
     <button class="sidebar-toggle" id="sidebar-toggle">
-      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg>
-        <title>Menu</title>
-        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="white" />
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739">
+        <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+      </svg>
+      <title>Menu</title>
+      <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="white" />
       </svg>
     </button>
     <!-- Main Chatbot Wrapper -->
@@ -48,7 +51,10 @@
         <!-- User Dropdown - Moved inside header -->
         <div class="user-dropdown" id="user-dropdown">
           <button class="user-btn" id="user-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739">
+              <path
+                d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z" />
+            </svg>
             <span class="user-icon">Kamu</span>
           </button>
           <div class="dropdown-content" id="dropdown-content">
@@ -60,10 +66,10 @@
         </div>
       </div>
 
-      
+
       <!-- Conversation -->
       <div class="chatbot-conversation-container" id="chatbot-conversation-container">
-  
+
         <div class="default-text">
           <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
           <h2>🌟 Halo! Aku TanyaBot🌟</h2>
@@ -71,27 +77,32 @@
           <br />
           <h3>Pertanyaan yang paling populer 🎈👇</h3>
         </div>
-        <div class="popular-prompts-container" id="popular-prompts-container"></div>
-        
-      </div>
-      <div class="new-chat-mobile-container">
-        <button id="new-chat-mobile" class="new-chat-mobile">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
-            <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
-          </svg>
-          New chat
-        </button>
-      </div>
-      
+          <div class="popular-prompts-container" id="popular-prompts-container"></div>
+
+        </div>
+        <div class="new-chat-mobile-container">
+          <button id="new-chat-mobile" class="new-chat-mobile">
+  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#0A2739"><path d="m48-96 81-276q-16-36-24.5-75T96-528q0-80 30-149.5t82.5-122Q261-852 330.96-882t149.5-30q79.54 0 149.04 30 69.5 30 122 82.5T834-677.28q30 69.73 30 149Q864-449 834-379t-82.5 122.5Q699-204 629.5-174T480-144q-42 0-81-8.5T324-177L48-96Zm107-107 174-51q11 5 51 21.5T480-216q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 60 16 99.5t22 51.5l-51 174Zm289-181h72v-108h108v-72H516v-108h-72v108H336v72h108v108Zm30-138Z"/></svg>
+            </svg>
+            New chat
+          </button>
+        </div>
+
       <!-- Input -->
       <div class="input-box">
         <input id="user-input" placeholder="Ask me anything..." />
         <button id="clear-chat-btn" class="clear-chat-btn" title="Clear chat">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739">
+            <path
+              d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+          </svg>
         </button>
         <button id="submit-btn" type="submit" title="Send message">
           <span style="font-size: 20px;">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739"><path d="m226-559 78 33q14-28 29-54t33-52l-56-11-84 84Zm142 83 114 113q42-16 90-49t90-75q70-70 109.5-155.5T806-800q-72-5-158 34.5T492-656q-42 42-75 90t-49 90Zm178-65q-23-23-23-56.5t23-56.5q23-23 57-23t57 23q23 23 23 56.5T660-541q-23 23-57 23t-57-23Zm19 321 84-84-11-56q-26 18-52 32.5T532-299l33 79Zm313-653q19 121-23.5 235.5T708-419l20 99q4 20-2 39t-20 33L538-80l-84-197-171-171-197-84 167-168q14-14 33.5-20t39.5-2l99 20q104-104 218-147t235-24ZM157-321q35-35 85.5-35.5T328-322q35 35 34.5 85.5T327-151q-25 25-83.5 43T82-76q14-103 32-161.5t43-83.5Zm57 56q-10 10-20 36.5T180-175q27-4 53.5-13.5T270-208q12-12 13-29t-11-29q-12-12-29-11.5T214-265Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0A2739">
+              <path
+                d="m226-559 78 33q14-28 29-54t33-52l-56-11-84 84Zm142 83 114 113q42-16 90-49t90-75q70-70 109.5-155.5T806-800q-72-5-158 34.5T492-656q-42 42-75 90t-49 90Zm178-65q-23-23-23-56.5t23-56.5q23-23 57-23t57 23q23 23 23 56.5T660-541q-23 23-57 23t-57-23Zm19 321 84-84-11-56q-26 18-52 32.5T532-299l33 79Zm313-653q19 121-23.5 235.5T708-419l20 99q4 20-2 39t-20 33L538-80l-84-197-171-171-197-84 167-168q14-14 33.5-20t39.5-2l99 20q104-104 218-147t235-24ZM157-321q35-35 85.5-35.5T328-322q35 35 34.5 85.5T327-151q-25 25-83.5 43T82-76q14-103 32-161.5t43-83.5Zm57 56q-10 10-20 36.5T180-175q27-4 53.5-13.5T270-208q12-12 13-29t-11-29q-12-12-29-11.5T214-265Z" />
+            </svg>
           </span>
         </button>
       </div>

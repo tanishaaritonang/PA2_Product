@@ -901,12 +901,15 @@ input {
     transform: translateX(-50%);
     z-index: 100;
   }
+  .popular-prompts-container {
+  margin-bottom: 24px; /* Adds space below popular questions */
+}
 
   .new-chat-mobile {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 10px 2px 2px;
+     padding: 10px 16px;
     background-color: white;
     border: 1px solid #d4d4d8;
     border-radius: 999px;

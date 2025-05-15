@@ -6,8 +6,8 @@ const chatbotConversation = document.getElementById(
 );
 const recentChatsContainer = document.getElementById("recent-chats-container");
 const clearChatBtn = document.getElementById("clear-chat-btn");
-const sidebarToggle1= document.getElementById("sidebar-toggle1");
-const sidebarToggle= document.getElementById("sidebar-toggle");
+const sidebarToggle1 = document.getElementById("sidebar-toggle1");
+const sidebarToggle = document.getElementById("sidebar-toggle");
 const userBtn = document.getElementById("user-btn");
 const dropdownContent = document.getElementById("dropdown-content");
 const logoutBtn = document.getElementById("logout-btn");
@@ -142,13 +142,13 @@ function clearChat() {
         </div>
         <div class="popular-prompts-container" id="popular-prompts-container"></div>
     `;
-  
+
   showWelcomeAnimation("./img/welcome.png");
   // Refresh popular prompts
   fetchPopularPrompts();
   // Refresh chat sessions
   fetchChatSessions();
-  
+
 }
 
 document.getElementById("sidebar-toggle").addEventListener("click", function () {
@@ -234,8 +234,8 @@ function renderChatSessions(sessions) {
 
     sessionElement.innerHTML = `
             <div class="chat-session-date">${formatDate(
-              session.created_at
-            )}</div>
+      session.created_at
+    )}</div>
             <div class="chat-session-preview">${previewText}</div>
         `;
 
@@ -369,8 +369,8 @@ async function handleUserMessage() {
   addMessageToUI(question, "human");
   showThinkingAnimation("./img/thinking.png");
 
- 
-  
+
+
   const loadingBubble = document.createElement("div");
   loadingBubble.classList.add("speech", "speech-ai");
   loadingBubble.innerHTML =
@@ -402,10 +402,10 @@ async function handleUserMessage() {
     }
     const responseData = await response.json();
     chatbotConversation.removeChild(loadingBubble);
-    
+
     // Clear thinking animation before showing response
     clearThinkingAnimation();
-    
+
     addMessageToUI(responseData, "ai");
     showFloatingAnimation(['🌟']);
 
@@ -414,10 +414,10 @@ async function handleUserMessage() {
   } catch (error) {
     console.error("Error fetching data:", error);
     chatbotConversation.removeChild(loadingBubble);
-    
+
     // Clear thinking animation on error too
     clearThinkingAnimation();
-    
+
     addMessageToUI(
       "Sorry, I encountered an error. Please try again.",
       "ai",
@@ -502,21 +502,21 @@ function showFloatingAnimation(emoji = '⭐') {
 function showWelcomeAnimation(imagePath = './img/welcome.jpg') {
   // Get the conversation container where we want to show the animation
   const container = document.getElementById('chatbot-conversation-container');
-  
+
   // Create the floating image element
   const welcomeImage = document.createElement('img');
   welcomeImage.className = 'welcome-floating-image';
   welcomeImage.src = imagePath;
   welcomeImage.alt = 'Welcome';
-  
+
   // Create a wrapper div to control the animation position
   const wrapper = document.createElement('div');
   wrapper.className = 'welcome-animation-wrapper';
   wrapper.appendChild(welcomeImage);
-  
+
   // Add the wrapper to the container
   container.appendChild(wrapper);
-  
+
   // Remove the animation after it completes
   setTimeout(() => {
     container.removeChild(wrapper);
@@ -536,21 +536,21 @@ function showThinkingAnimation(imagePath = './img/thinking.png') {
 
   // Get the conversation container where we want to show the animation
   const container = document.getElementById('chatbot-conversation-container');
-  
+
   // Create the floating image element
   const avatarImage = document.createElement('img');
   avatarImage.className = 'avatar-floating-image thinking';
   avatarImage.src = imagePath;
   avatarImage.alt = 'Thinking';
-  
+
   // Create a wrapper div to control the animation position
   const wrapper = document.createElement('div');
   wrapper.className = 'avatar-animation-wrapper';
   wrapper.appendChild(avatarImage);
-  
+
   // Add the wrapper to the container
   container.appendChild(wrapper);
-  
+
   // Store reference to current animation
   currentThinkingAnimation = wrapper;
 
@@ -567,7 +567,7 @@ function clearThinkingAnimation() {
   if (currentThinkingAnimation) {
     // Add fade-out class
     currentThinkingAnimation.classList.add('fade-out');
-    
+
     // Remove after animation completes
     setTimeout(() => {
       if (currentThinkingAnimation && currentThinkingAnimation.parentNode) {
@@ -575,7 +575,7 @@ function clearThinkingAnimation() {
       }
       currentThinkingAnimation = null;
     }, 500); // Match this with your CSS transition time
-    
+
     // Clear the interval
     if (thinkingAnimationInterval) {
       clearInterval(thinkingAnimationInterval);
