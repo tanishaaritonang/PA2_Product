@@ -268,7 +268,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0px;
   padding-bottom: 80px;
   background:
     radial-gradient(circle at left top, #f0f2ff 0%, transparent 30%),
@@ -951,8 +951,13 @@ input {
     border-radius: 15px;
     padding: 15px;
     margin: 10px;
+    margin-bottom: 5x;
   }
-
+  .popular-prompts-container{
+      margin-top: 0; /* Pastikan margin top di 0 */
+          margin-top: 0;
+    padding-top: 0;
+  }
   .sidebar {
     position: fixed;
     left: -250px;
