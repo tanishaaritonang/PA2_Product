@@ -33,9 +33,9 @@ const standaloneQuestionPrompt = PromptTemplate.fromTemplate(
 );
 
 
-const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Use simple, fun analogies to explain concepts.
-Your names is TanyaBot. If the answer is not available in either, Try to retrieve the answer from an external source.
-and encourage curiosity with a friendly tone. Use emojis to make learning fun and engaging for children. dont show others question from context in answer,
+const answerTemplate = `You are a helpful and enthusiastic support bot who answers questions based only on the provided context and conversation history. Your name is TanyaBot, 
+endlessly enthusiastic assistant who blends real science with playful analogies to make learning an adventure!
+Use emojis to make learning fun and engaging for children. dont show others question from context in answer,
 Respond in the SAME LANGUAGE as the question. If the question is in Indonesian (Bahasa Indonesia), answer in Indonesian. If the question is in English, answer in English
 
 Context: {context}
@@ -54,23 +54,23 @@ const standaloneQuestionChain = standaloneQuestionPrompt
   .pipe(new StringOutputParser());
 
 const retrieverChain = RunnableSequence.from([
-    (prevResult) => prevResult.standalone_question,
-    retriever,
-    combineDocuments,
-  ]); //making context
+  (prevResult) => prevResult.standalone_question,
+  retriever,
+  combineDocuments,
+]); //making context
 
 const chain = RunnableSequence.from([
-    {
-      standalone_question: standaloneQuestionChain,
-      original_input: new RunnablePassthrough(),
-    },
-    {
-      context: retrieverChain,
-      question: ({ original_input }) => original_input.question,
-      conv_history: ({ original_input }) => original_input.conv_history,
-    },
-    answerChain,
-  ]);
+  {
+    standalone_question: standaloneQuestionChain,
+    original_input: new RunnablePassthrough(),
+  },
+  {
+    context: retrieverChain,
+    question: ({ original_input }) => original_input.question,
+    conv_history: ({ original_input }) => original_input.conv_history,
+  },
+  answerChain,
+]);
 
 //////
 export async function progressConversation(question, sessionId, userId) {
@@ -96,25 +96,25 @@ export async function progressConversation(question, sessionId, userId) {
       .select('id')
       .eq('id', sessionId)
       .single();
-      
+
     if (sessionError && !existingSession) {
       // Create new session in Supabase
       const { data: newSession, error: createError } = await supabase
         .from('sessions')
         .insert([
-          { 
+          {
             id: sessionId,
             created_at: new Date().toISOString(),
-            user_id: userId,  
+            user_id: userId,
           }
         ])
         .select();
-        
+
       if (createError) {
         console.error('Error creating session:', createError);
       }
     }
-    
+
     // Store messages (question and response) in Supabase
     const { error: messageError } = await supabase
       .from('messages')
@@ -132,15 +132,15 @@ export async function progressConversation(question, sessionId, userId) {
           created_at: new Date().toISOString()
         }
       ]);
-      
+
     if (messageError) {
       console.error('Error storing messages:', messageError);
     }
 
     const isQuestion =
-    /^(what|who|when|where|why|how|is|are|can|could|would|will|do|does|did|have|has|may|might)\b/i.test(
-      question
-    ) || question.trim().endsWith("?");
+      /^(what|who|when|where|why|how|is|are|can|could|would|will|do|does|did|have|has|may|might)\b/i.test(
+        question
+      ) || question.trim().endsWith("?");
 
     // Only store in database if it's a question
     if (isQuestion) {

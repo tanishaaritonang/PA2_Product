@@ -5,7 +5,7 @@ const chatbotConversation = document.getElementById(
   "chatbot-conversation-container"
 );
 const recentChatsContainer = document.getElementById("recent-chats-container");
-const clearChatBtn = document.getElementById("clear-chat-btn");
+const voiceInputBtn = document.getElementById("voice-input-btn");
 const sidebarToggle1 = document.getElementById("sidebar-toggle1");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const userBtn = document.getElementById("user-btn");
@@ -65,6 +65,66 @@ async function fetchUserInfo() {
   }
 }
 
+let recognition;
+let isListening = false;
+
+function initializeVoiceRecognition() {
+  // Check browser support
+  if (!('webkitSpeechRecognition' in window)) {
+    console.warn("Speech recognition not supported");
+    voiceInputBtn.style.display = 'none';
+    return;
+  }
+
+  recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'id-ID';
+
+  recognition.onstart = () => {
+    isListening = true;
+    voiceInputBtn.classList.add('listening');
+    console.log("Voice recognition started");
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    userInput.value = transcript;
+    console.log("Transcript: ", transcript);
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Recognition error: ", event.error);
+    stopVoiceRecognition();
+  };
+
+  recognition.onend = () => {
+    stopVoiceRecognition();
+    if (userInput.value.trim()) {
+      handleUserMessage();
+    }
+  };
+}
+
+let isVoiceMessage = false;
+
+function toggleVoiceRecognition() {
+  if (!recognition) {
+    initializeVoiceRecognition();
+  }
+
+  if (isListening) {
+    recognition.stop();
+  } else {
+    isVoiceMessage = true; // 🎤 Tandai ini sebagai pesan suara
+    recognition.start();
+  }
+}
+
+function stopVoiceRecognition() {
+  isListening = false;
+  voiceInputBtn.classList.remove('listening');
+}
 // Toggle user dropdown
 if (userBtn) {
   userBtn.addEventListener("click", () => {
@@ -112,10 +172,6 @@ if (logoutBtn) {
   logoutBtn.addEventListener("click", handleLogout);
 }
 
-// Add event listener for the clear chat button
-if (clearChatBtn) {
-  clearChatBtn.addEventListener("click", clearInputText);
-}
 
 
 // Function to clear the chat
@@ -360,10 +416,13 @@ async function handleUserMessage() {
 
   userInput.value = "";
   button.disabled = true;
-
   const defaultText = chatbotConversation.querySelector(".default-text");
   if (defaultText) {
     defaultText.remove();
+  }
+  const popularPrompts = document.getElementById("popular-prompts-container");
+  if (popularPrompts) {
+    popularPrompts.classList.add("hidden");
   }
 
   addMessageToUI(question, "human");
@@ -405,12 +464,16 @@ async function handleUserMessage() {
 
     // Clear thinking animation before showing response
     clearThinkingAnimation();
-
+    
     addMessageToUI(responseData, "ai");
-    showFloatingAnimation(['🌟']);
+   if (isVoiceMessage) {
+      speakText(responseData);
+      isVoiceMessage = false; // Reset flag
+    }
 
+    showFloatingAnimation(['🌟']);
     fetchChatSessions();
-    fetchPopularPrompts();
+
   } catch (error) {
     console.error("Error fetching data:", error);
     chatbotConversation.removeChild(loadingBubble);
@@ -583,27 +646,50 @@ function clearThinkingAnimation() {
   }
 }
 
-function clearInputText() {
-  userInput.value = "";
-  userInput.focus();
+// Fungsi untuk membacakan teks
+function speakText(text) {
+  // Cek dukungan browser
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'id-ID'; // Set bahasa Indonesia
+    utterance.rate = 1.0; // Kecepatan bicara (0.1-10)
+    utterance.pitch = 1.0; // Nada suara (0-2)
+    
+    // Pilih suara (jika tersedia)
+    const voices = window.speechSynthesis.getVoices();
+    const idVoice = voices.find(voice => voice.lang === 'id-ID');
+    if (idVoice) utterance.voice = idVoice;
+    
+    window.speechSynthesis.speak(utterance);
+  } else {
+    console.warn("Browser tidak mendukung text-to-speech");
+  }
 }
 
-if (newChatDesktop) {
-  newChatDesktop.addEventListener("click", clearChat);
-}
-
-if (newChatMobile) {
-  newChatMobile.addEventListener("click", clearChat);
-}
+// Inisialisasi voices (perlu di-load pertama kali)
+window.speechSynthesis.onvoiceschanged = () => {
+  console.log("Voice options loaded");
+};
 
 
 // Load chat sessions and popular prompts on page load
 document.addEventListener("DOMContentLoaded", () => {
-  // Fetch user info for the dropdown
   fetchUserInfo();
   showWelcomeAnimation("./img/welcome.png");
-  // Fetch chat history for the sidebar
   fetchChatSessions();
-  // Fetch popular prompts
+  initializeVoiceRecognition();
+  if (voiceInputBtn) {
+    voiceInputBtn.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+
+        toggleVoiceRecognition();
+      } catch (error) {
+        console.error("Error accessing microphone:", error);
+        addMessageToUI("Tidak dapat mengakses microphone. Pastikan Anda memberikan izin.", "ai", true);
+      }
+    });
+  }
   fetchPopularPrompts();
 });
