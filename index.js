@@ -35,6 +35,8 @@ import {
   handleLogin,
   handleRegister,
   handleUserInfo,
+  handleForgotPassword,
+  handleResetPassword,
 } from "./controller/auth.js";
 
 const app = express();
@@ -79,6 +81,15 @@ app.get("/register", guestOnly, (req, res) => {
   res.sendFile("register.html", { root: "public" });
 });
 
+// New routes for forgot password functionality
+app.get("/forgot-password", guestOnly, (req, res) => {
+  res.sendFile("forgot-password.html", { root: "public" });
+});
+
+app.get("/reset-password", guestOnly, (req, res) => {
+  res.sendFile("reset-password.html", { root: "public" });
+});
+
 app.post("/logout", (req, res) => {
   res.clearCookie("sb-access-token");
   res.clearCookie("sb:token");
@@ -87,6 +98,8 @@ app.post("/logout", (req, res) => {
 
 app.post("/login", handleLogin);
 app.post("/register", handleRegister);
+app.post("/forgot-password", handleForgotPassword);
+app.post("/reset-password", handleResetPassword);
 app.post("/chat", verifyToken, handleChat);
 app.get("/popular-prompts", handlePopularPrompts);
 app.post("/upload", verifyToken, upload.single("file"), handleUpload);

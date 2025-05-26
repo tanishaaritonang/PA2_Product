@@ -27,6 +27,14 @@ sidebarToggle.addEventListener("click", () => {
 // Generate a session ID when the page loads or get from localStorage
 let sessionId = Date.now().toString();
 
+if (newChatDesktop) {
+  newChatDesktop.addEventListener("click", clearChat);
+}
+
+if (newChatMobile) {
+  newChatMobile.addEventListener("click", clearChat);
+}
+
 // Get user information on page load
 async function fetchUserInfo() {
   try {
@@ -420,10 +428,12 @@ async function handleUserMessage() {
   if (defaultText) {
     defaultText.remove();
   }
+  
   const popularPrompts = document.getElementById("popular-prompts-container");
   if (popularPrompts) {
-    popularPrompts.classList.add("hidden");
+    popularPrompts.style.display="none";
   }
+
 
   addMessageToUI(question, "human");
   showThinkingAnimation("./img/thinking.png");
