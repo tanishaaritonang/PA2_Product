@@ -148,7 +148,7 @@ const handleForgotPassword = async (req, res) => {
   try {
     // Send password reset email using Supabase Auth
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3001'}/reset-password`,
+      redirectTo: 'https://pa-2-product.vercel.app/reset-password',
     });
 
     if (error) {
