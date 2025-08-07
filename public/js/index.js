@@ -480,9 +480,6 @@ async function handleUserMessage() {
         isVoiceMessage = false;
         setTimeout(() => speakText(responseData), 300); // Beri jeda kecil
       }
-      
-      // Animasi floating yang lebih ringan
-      showOptimizedFloatingAnimation();
     });
 
   } catch (error) {
