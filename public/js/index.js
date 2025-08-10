@@ -199,7 +199,7 @@ function clearChat() {
   chatbotConversation.innerHTML = `
             <div class="default-text">
           <img src="./img/logo.png" alt="Anaques Logo" style="width: 100px; display: block; margin: 10px auto;" />
-          <h2>🌟 Halo! Aku TanyaBot🌟</h2>
+          <h2>🌟 Halo! Aku CurioKids🌟</h2>
           <p>Ayo jelajahi dunia bersama! 🚀</p>
           <br />
           <h3>Pertanyaan yang paling populer 🎈👇</h3>
