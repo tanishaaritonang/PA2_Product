@@ -26,7 +26,7 @@ jobs:
           source: "repo.tar"
           target: "${{ secrets.DEPLOY_DIR }}/repo.tar"
 
-      - name: SSH to server: run deploy script
+      - name: SSH to server run deploy script
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.HOST }}
