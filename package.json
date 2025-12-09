@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  
   "scripts": {
     "dev": "nodemon ./index.js",
-    "start":"node index"
-
+    "start": "node index"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +23,9 @@
     "express": "^4.19.2",
     "express-session": "^1.18.1",
     "langchain": "^0.2.16",
+    "memory-cache": "^0.2.0",
     "multer": "^1.4.5-lts.2",
+    "uuid": "^13.0.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4"
   },

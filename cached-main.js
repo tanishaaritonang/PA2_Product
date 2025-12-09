@@ -11,13 +11,9 @@ import { formatConvHistory } from "./formatConvHistory.js";
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./db/db.js";
 import cache from 'memory-cache';
-import { v4 as uuidv4 } from 'uuid';
 
 // Cache TTL: 30 minutes (1800000 ms)
 const CACHE_TTL = 1800000;
-
-// Map to store the mapping between original session IDs and UUIDs
-const sessionIdMap = new Map();
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -78,38 +74,9 @@ const chain = RunnableSequence.from([
 ]);
 
 /**
- * Get or create a consistent UUID for a given session ID
- */
-const getOrCreateUUID = (originalSessionId) => {
-  if (sessionIdMap.has(originalSessionId)) {
-    return sessionIdMap.get(originalSessionId);
-  }
-
-  // Create a simple hash-based pseudo-UUID to ensure consistency
-  // This uses a simple approach for consistency without async import
-  let hash = 0;
-  for (let i = 0; i < originalSessionId.length; i++) {
-    const char = originalSessionId.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-
-  // Make sure it's positive
-  hash = Math.abs(hash).toString(16);
-
-  // Pad with zeros if needed and format as UUID-like string
-  const paddedHash = hash.padEnd(32, '0').substring(0, 32);
-  const uuid = `${paddedHash.substring(0, 8)}-${paddedHash.substring(8, 12)}-${paddedHash.substring(12, 16)}-${paddedHash.substring(16, 20)}-${paddedHash.substring(20, 32)}`;
-
-  sessionIdMap.set(originalSessionId, uuid);
-  return uuid;
-};
-
-/**
  * Create cache key combining sessionId and question
  */
 const createCacheKey = (sessionId, question) => {
-  // Use the original session ID for caching to maintain consistency
   return `cache:${sessionId}:${question}`;
 };
 
@@ -120,13 +87,13 @@ export async function progressConversation(question, sessionId, userId) {
   try {
     // Create cache key
     const cacheKey = createCacheKey(sessionId, question);
-
+    
     // Check if response is already cached
     const cachedResponse = cache.get(cacheKey);
-
+    
     if (cachedResponse) {
       console.log('CACHE HIT - Returning cached response');
-
+      
       // Update conversation history for this session with cached response
       if (!convHistory.has(sessionId)) {
         convHistory.set(sessionId, []);
@@ -135,29 +102,19 @@ export async function progressConversation(question, sessionId, userId) {
       sessionHistory.push(question);
       sessionHistory.push(cachedResponse);
       convHistory.set(sessionId, sessionHistory);
-
-      // Validate session ID format, map to consistent UUID if it's not a valid one
-      let validSessionId = sessionId;
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(sessionId)) {
-        console.log(`Invalid session ID format: ${sessionId}. Mapping to consistent UUID.`);
-        validSessionId = getOrCreateUUID(sessionId);
-      }
-
+      
       // Store messages (question and cached response) in Supabase
       const { error: messageError } = await supabase
         .from('messages')
         .insert([
           {
-            session_id: validSessionId,
-            user_id: userId, // Include the user_id to avoid constraint error
+            session_id: sessionId,
             message_type: 'question',
             body: question,
             created_at: new Date().toISOString()
           },
           {
-            session_id: validSessionId,
-            user_id: userId, // Include the user_id to avoid constraint error
+            session_id: sessionId,
             message_type: 'response',
             body: cachedResponse,
             created_at: new Date().toISOString()
@@ -167,7 +124,7 @@ export async function progressConversation(question, sessionId, userId) {
       if (messageError) {
         console.error('Error storing messages:', messageError);
       }
-
+      
       const isQuestion =
         /^(what|who|when|where|why|how|is|are|can|could|would|will|do|does|did|have|has|may|might)\b/i.test(
           question
@@ -195,26 +152,22 @@ export async function progressConversation(question, sessionId, userId) {
           const embeddingData = await embeddingResponse.json();
           const embedding = embeddingData.data[0].embedding;
 
-          // Handle embedding operations with error handling for schema issues
-          getSimilarPopularPrompts(question, true, embedding)
-            .catch(error => {
-              console.error("Error in similar prompts:", error);
-            });
-
-          storeUserPrompt(question, embedding)
-            .catch(error => {
-              console.error("Error in storing prompt:", error);
-            });
+          Promise.all([
+            getSimilarPopularPrompts(question, true, embedding),
+            storeUserPrompt(question, embedding),
+          ]).catch(error => {
+            console.error("Error in background tasks:", error);
+          });
         } catch (error) {
           console.error("Error tracking prompt:", error);
         }
       }
-
+      
       return cachedResponse;
     }
-
+    
     console.log('CACHE MISS - Calling LangChain/OpenAI API');
-
+    
     if (!convHistory.has(sessionId)) {
       convHistory.set(sessionId, []);
     }
@@ -232,20 +185,12 @@ export async function progressConversation(question, sessionId, userId) {
 
     // Cache the response before returning
     cache.put(cacheKey, response, CACHE_TTL);
-
-    // Validate session ID format, map to consistent UUID if it's not a valid one
-    let validSessionId = sessionId;
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(sessionId)) {
-      console.log(`Invalid session ID format: ${sessionId}. Mapping to consistent UUID.`);
-      validSessionId = getOrCreateUUID(sessionId);
-    }
-
+    
     // create session
     const { data: existingSession, error: sessionError } = await supabase
       .from('sessions')
       .select('id')
-      .eq('id', validSessionId)
+      .eq('id', sessionId)
       .single();
 
     if (sessionError && !existingSession) {
@@ -254,7 +199,7 @@ export async function progressConversation(question, sessionId, userId) {
         .from('sessions')
         .insert([
           {
-            id: validSessionId,
+            id: sessionId,
             created_at: new Date().toISOString(),
             user_id: userId,
           }
@@ -271,15 +216,13 @@ export async function progressConversation(question, sessionId, userId) {
       .from('messages')
       .insert([
         {
-          session_id: validSessionId,
-          user_id: userId, // Include the user_id to avoid constraint error
+          session_id: sessionId,
           message_type: 'question',
           body: question,
           created_at: new Date().toISOString()
         },
         {
-          session_id: validSessionId,
-          user_id: userId, // Include the user_id to avoid constraint error
+          session_id: sessionId,
           message_type: 'response',
           body: response,
           created_at: new Date().toISOString()
@@ -437,8 +380,3 @@ async function storeUserPrompt(question, embedding) {
     return false;
   }
 }
-
-
-
-
-
